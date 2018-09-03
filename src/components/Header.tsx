@@ -1,7 +1,20 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONT_SIZES } from '../utils';
+
+type Props = {
+  title: string;
+  right?: React.ReactNode;
+};
+
+const Header = ({ title, right }: Props) => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{title}</Text>
+      {right}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -17,18 +30,5 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.HUGE,
   },
 });
-
-const Header = ({ title, right }) => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      {right}
-    </View>
-  );
-};
-
-Header.propTypes = {
-  title: PropTypes.string.isRequired,
-};
 
 export default Header;

@@ -1,9 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView } from 'react-native';
 import { BudgetHeader, BudgetList, Header } from '../components';
-import { withBudget } from '../context';
+import { BudgetContext, withBudget } from '../context';
 
-class BudgetScreen extends Component {
+interface Props {
+  budgetContext: BudgetContext;
+}
+
+interface State {}
+
+class BudgetScreen extends Component<Props, State> {
   render() {
     const { budgetContext } = this.props;
     let totalBudget = 0;
@@ -24,7 +30,12 @@ class BudgetScreen extends Component {
         />
         <ScrollView>
           {budgetContext.groups.map((group, index) => (
-            <BudgetList key={group._id} group={group} first={index === 0} />
+            <BudgetList
+              key={group._id}
+              group={group}
+              first={index === 0}
+              updateBudgetItem={this.props.budgetContext.updateBudgetItem}
+            />
           ))}
         </ScrollView>
       </Fragment>
@@ -32,4 +43,4 @@ class BudgetScreen extends Component {
   }
 }
 
-export default withBudget(BudgetScreen);
+export default withBudget()(BudgetScreen);

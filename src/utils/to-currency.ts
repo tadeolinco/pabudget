@@ -1,5 +1,5 @@
-const toCurrency = money => {
-  if (isNaN(money)) return 'NaN';
+const toCurrency = (money: string | number): string => {
+  if (isNaN(+money)) return 'NaN';
   if (money === '') return 'P0';
 
   const prefix = money < 0 ? '-P' : 'P';

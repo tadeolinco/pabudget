@@ -3,13 +3,13 @@ import { StyleSheet, View } from 'react-native';
 import { COLORS } from '../utils';
 import BudgetListItem from './BudgetListItem';
 
-const styles = StyleSheet.create({
-  container: {
-    borderTopColor: COLORS.GRAY,
-  },
-});
+type Props = {
+  group: any;
+  first: boolean;
+  updateBudgetItem: (groupId: string, itemId: string, changes: any) => void;
+};
 
-const BudgetList = ({ group, first = false }) => {
+const BudgetList = ({ group, first = false, updateBudgetItem }: Props) => {
   let groupBudget = 0;
   let groupAvailable = 0;
   for (const item of group.items) {
@@ -25,15 +25,22 @@ const BudgetList = ({ group, first = false }) => {
         budget={groupBudget}
         available={groupAvailable}
       />
-      {group.items.map((item, index) => (
+      {group.items.map((item: any, index: number) => (
         <BudgetListItem
           key={item._id}
           {...item}
           last={index === group.items.length - 1}
+          updateBudgetItem={updateBudgetItem}
         />
       ))}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    borderTopColor: COLORS.GRAY,
+  },
+});
 
 export default BudgetList;

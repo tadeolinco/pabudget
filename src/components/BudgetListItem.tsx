@@ -1,52 +1,29 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { withBudget } from '../context/BudgetContext';
 import { COLORS, FONT_SIZES, toCurrency } from '../utils';
 
-const styles = StyleSheet.create({
-  container: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 14,
-    paddingBottom: 14,
-    flexDirection: 'row',
-    borderBottomColor: COLORS.GRAY,
-  },
-  nameContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  numberContainer: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    flex: 1,
-  },
-  text: {
-    color: COLORS.BLACK,
-    fontSize: FONT_SIZES.TINY,
-  },
-  hide: {
-    position: 'absolute',
-    top: 0,
-    opacity: 0,
-    zIndex: 0,
-  },
-});
+type Props = {
+  _id?: string;
+  groupId?: string;
+  name: string;
+  budget: number;
+  available: number;
+  header?: boolean;
+  last?: boolean;
+  updateBudgetItem: (groupId: string, itemId: string, changes: any) => void;
+};
 
-class BudgetListItem extends Component {
-  static propTypes = {
-    _id: PropTypes.string,
-    groupId: PropTypes.string,
-    name: PropTypes.string.isRequired,
-    budget: PropTypes.number.isRequired,
-    available: PropTypes.number.isRequired,
-    header: PropTypes.bool,
-    last: PropTypes.bool,
-    budgetContext: PropTypes.object.isRequired,
-  };
+type State = {
+  tempBudget: string;
+  isFocused: boolean;
+};
 
-  static defaultProps = {
+class BudgetListItem extends React.Component<Props, State> {
+  private input!: TextInput;
+
+  static defaultProps: Partial<Props> = {
+    _id: '',
+    groupId: '',
     header: false,
     last: false,
   };
@@ -66,23 +43,20 @@ class BudgetListItem extends Component {
     }
   };
 
-  handleChangeBudget = text => {
-    const currentLength = this.state.tempBudget.length;
-    if (text.length < currentLength) {
-      this.setState({ tempBudget: this.state.tempBudget.slice(0, -1) });
-    } else {
+  handleChangeBudget = (text: string) => {
+    if (text.length > this.state.tempBudget.length) {
       const lastCharacter = text[text.length - 1];
       if (isNaN(+lastCharacter) || lastCharacter === ' ') return;
       this.setState({ tempBudget: this.state.tempBudget + lastCharacter });
+    } else {
+      this.setState({ tempBudget: text });
     }
   };
 
   handleBlurBudget = () => {
-    this.props.budgetContext.updateBudgetItem(
-      this.props.groupId,
-      this.props._id,
-      { budget: +this.state.tempBudget }
-    );
+    this.props.updateBudgetItem(this.props.groupId!, this.props._id!, {
+      budget: +this.state.tempBudget,
+    });
     this.setState({ isFocused: false });
   };
 
@@ -130,12 +104,13 @@ class BudgetListItem extends Component {
           </Text>
 
           <TextInput
-            ref={input => (this.input = input)}
+            ref={(input: TextInput) => (this.input = input)}
             style={styles.hide}
             keyboardType="numeric"
             value={this.state.tempBudget}
             onChangeText={this.handleChangeBudget}
             onBlur={this.handleBlurBudget}
+            selectTextOnFocus
           />
         </View>
         <View style={[styles.numberContainer]}>
@@ -165,4 +140,34 @@ class BudgetListItem extends Component {
   }
 }
 
-export default withBudget(BudgetListItem);
+const styles = StyleSheet.create({
+  container: {
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 14,
+    paddingBottom: 14,
+    flexDirection: 'row',
+    borderBottomColor: COLORS.GRAY,
+  },
+  nameContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  numberContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  text: {
+    color: COLORS.BLACK,
+    fontSize: FONT_SIZES.TINY,
+  },
+  hide: {
+    position: 'absolute',
+    top: 0,
+    opacity: 0,
+    zIndex: 0,
+  },
+});
+
+export default BudgetListItem;
