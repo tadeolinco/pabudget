@@ -1,36 +1,34 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { BudgetGroup } from '../entities';
 import { COLORS } from '../utils';
 import BudgetListItem from './BudgetListItem';
+import BudgetListItemHeader from './BudgetListItemHeader';
 
 type Props = {
-  group: any;
+  group: BudgetGroup;
   first: boolean;
-  updateBudgetItem: (groupId: string, itemId: string, changes: any) => void;
+  computed: {
+    budget: number;
+    used: number;
+    perItem: object;
+  };
 };
 
-const BudgetList = ({ group, first = false, updateBudgetItem }: Props) => {
-  let groupBudget = 0;
-  let groupAvailable = 0;
-  for (const item of group.items) {
-    groupBudget += item.budget;
-    groupAvailable += item.available;
-  }
-
+const BudgetList = ({ group, first = false, computed }: Props) => {
   return (
     <View style={[styles.container, { borderTopWidth: first ? 0 : 20 }]}>
-      <BudgetListItem
-        header
+      <BudgetListItemHeader
         name={group.name}
-        budget={groupBudget}
-        available={groupAvailable}
+        totalBudget={computed.budget}
+        totalAvailable={computed.budget - computed.used}
       />
-      {group.items.map((item: any, index: number) => (
+      {group.items.map((item, index: number) => (
         <BudgetListItem
-          key={item._id}
-          {...item}
+          key={item.id}
+          item={item}
+          available={item.budget - computed.perItem[item.id]}
           last={index === group.items.length - 1}
-          updateBudgetItem={updateBudgetItem}
         />
       ))}
     </View>

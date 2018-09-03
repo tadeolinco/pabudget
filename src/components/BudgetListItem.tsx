@@ -1,16 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { BudgetItem } from '../entities';
 import { COLORS, FONT_SIZES, toCurrency } from '../utils';
 
 type Props = {
-  _id?: string;
-  groupId?: string;
-  name: string;
-  budget: number;
+  item: BudgetItem;
   available: number;
-  header?: boolean;
-  last?: boolean;
-  updateBudgetItem: (groupId: string, itemId: string, changes: any) => void;
+  last: boolean;
 };
 
 type State = {
@@ -21,26 +17,17 @@ type State = {
 class BudgetListItem extends React.Component<Props, State> {
   private input!: TextInput;
 
-  static defaultProps: Partial<Props> = {
-    _id: '',
-    groupId: '',
-    header: false,
-    last: false,
-  };
-
   state = {
-    tempBudget: this.props.budget.toString(),
+    tempBudget: this.props.item.budget.toString(),
     isFocused: false,
   };
 
   handlePressBudget = () => {
-    if (!this.props.header) {
-      this.setState({
-        isFocused: true,
-        tempBudget: this.props.budget.toString(),
-      });
-      this.input.focus();
-    }
+    this.setState({
+      isFocused: true,
+      tempBudget: this.props.item.budget.toString(),
+    });
+    this.input.focus();
   };
 
   handleChangeBudget = (text: string) => {
@@ -54,27 +41,23 @@ class BudgetListItem extends React.Component<Props, State> {
   };
 
   handleBlurBudget = () => {
-    this.props.updateBudgetItem(this.props.groupId!, this.props._id!, {
-      budget: +this.state.tempBudget,
-    });
+    // this.props.updateBudgetItem(this.props.groupId!, this.props._id!, {
+    //   budget: +this.state.tempBudget,
+    // });
     this.setState({ isFocused: false });
   };
 
   render() {
-    const { header, last, name, budget, available } = this.props;
+    const {
+      last,
+      available,
+      item: { name, budget },
+    } = this.props;
+
     return (
       <View style={[styles.container, { borderBottomWidth: last ? 0 : 1 }]}>
         <View style={styles.nameContainer}>
-          <Text
-            style={[
-              styles.text,
-              {
-                fontWeight: header ? 'bold' : 'normal',
-              },
-            ]}
-          >
-            {name}
-          </Text>
+          <Text style={[styles.text]}>{name}</Text>
         </View>
         <View
           style={styles.numberContainer}
@@ -84,7 +67,6 @@ class BudgetListItem extends React.Component<Props, State> {
             style={[
               styles.text,
               {
-                fontWeight: header ? 'bold' : 'normal',
                 color: this.state.isFocused
                   ? +this.state.tempBudget === 0
                     ? COLORS.GRAY
@@ -118,7 +100,6 @@ class BudgetListItem extends React.Component<Props, State> {
             style={[
               styles.text,
               {
-                fontWeight: header ? 'bold' : 'normal',
                 color: COLORS.WHITE,
                 backgroundColor:
                   available === 0
@@ -161,6 +142,7 @@ const styles = StyleSheet.create({
   text: {
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.TINY,
+    fontWeight: 'normal',
   },
   hide: {
     position: 'absolute',

@@ -1,4 +1,5 @@
 import { AppRegistry, YellowBox } from 'react-native';
+import 'reflect-metadata';
 import { name as appName } from './app.json';
 import App from './src/App';
 

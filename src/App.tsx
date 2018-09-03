@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from 'react-navigation';
-import { BudgetProvider } from './context';
+import { BudgetProvider, DBProvider } from './context';
 import BudgetScreen from './screens/BudgetScreen';
 
 const RootNavigator = createBottomTabNavigator({
@@ -10,7 +10,9 @@ const RootNavigator = createBottomTabNavigator({
 });
 
 export default () => (
-  <BudgetProvider>
-    <RootNavigator />
-  </BudgetProvider>
+  <DBProvider>
+    <BudgetProvider>
+      <RootNavigator />
+    </BudgetProvider>
+  </DBProvider>
 );
