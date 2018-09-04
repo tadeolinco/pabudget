@@ -16,6 +16,9 @@ export class BudgetItem {
   @Column()
   name: string
 
+  @Column()
+  order: number
+
   @Column({ type: 'int' })
   budget: number
 

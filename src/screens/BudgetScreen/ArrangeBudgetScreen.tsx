@@ -1,9 +1,13 @@
+import faker from 'faker'
 import React, { Fragment } from 'react'
+import { TouchableOpacity } from 'react-native'
 import SortableListView from 'react-native-sortable-listview'
+import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
-import { AddBudgetGroup, Header } from '../../components'
+import { ArrangeBudgetGroup, Header } from '../../components'
 import { BudgetContext, withBudget } from '../../context'
 import { BudgetGroup } from '../../entities'
+import { COLORS, FONT_SIZES, range } from '../../utils'
 
 type Props = {
   navigation: NavigationScreenProp<any>
@@ -15,16 +19,19 @@ type State = {
 }
 
 class AddBudgetScreen extends React.Component<Props, State> {
-  state = {
-    groups: [
-      { name: '0', id: 0, order: 0 },
-      { name: '1', id: 1, order: 1 },
-      { name: '2', id: 2, order: 2 },
-      { name: '3', id: 3, order: 3 },
-      { name: '4', id: 4, order: 4 },
-      { name: '5', id: 5, order: 5 },
-      { name: '6', id: 6, order: 6 },
-    ],
+  constructor(props: Props) {
+    super(props)
+    const groups = []
+    const length = range(5, 10)
+    for (let i = 0; i < length; ++i) {
+      groups.push({
+        name: faker.commerce.product(),
+        id: i,
+        order: i,
+      })
+    }
+
+    this.state = { groups }
   }
 
   handleRowMoved = (e: { to: number; from: number }) => {
@@ -59,14 +66,33 @@ class AddBudgetScreen extends React.Component<Props, State> {
 
     return (
       <Fragment>
-        <Header title="Add Budget" hasBack />
+        <Header
+          title="Add Budget"
+          hasBack
+          right={
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('AddBudget')
+              }}
+            >
+              <Icon name="plus" color="white" size={FONT_SIZES.LARGE} />
+            </TouchableOpacity>
+          }
+        />
         <SortableListView
-          activeOpacity={1}
+          moveOnPressIn
+          activeOpacity={0.5}
           style={{ flex: 1, backgroundColor: 'white' }}
           data={groups}
           order={order}
-          renderRow={(row: BudgetGroup) => <AddBudgetGroup data={row} />}
+          renderRow={(row: BudgetGroup) => (
+            <ArrangeBudgetGroup
+              data={row}
+              last={row.order === this.state.groups.length - 1}
+            />
+          )}
           onRowMoved={this.handleRowMoved}
+          sortRowStyle={{ backgroundColor: COLORS.GRAY }}
         />
       </Fragment>
     )

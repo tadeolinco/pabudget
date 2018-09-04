@@ -46,7 +46,7 @@ class BudgetScreen extends Component<Props, State> {
           right={
             <TouchableOpacity
               onPress={() => {
-                this.props.navigation.navigate('AddBudget')
+                this.props.navigation.navigate('ArrangeBudget')
               }}
             >
               <Icon name="list" color="white" size={FONT_SIZES.LARGE} />
@@ -63,6 +63,7 @@ class BudgetScreen extends Component<Props, State> {
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
+              backgroundColor: 'white',
             }}
           >
             <Text style={{ color: COLORS.BLACK, fontSize: FONT_SIZES.HUGE }}>

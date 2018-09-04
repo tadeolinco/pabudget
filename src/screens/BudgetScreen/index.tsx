@@ -1,6 +1,6 @@
 import { Animated, Easing } from 'react-native'
 import { createStackNavigator } from 'react-navigation'
-import AddBudgetScreen from './AddBudgetScreen'
+import ArrangeBudgetScreen from './ArrangeBudgetScreen'
 import BudgetScreen from './BudgetScreen'
 
 const transitionConfig = () => {
@@ -30,9 +30,9 @@ const transitionConfig = () => {
 const BudgetStack = createStackNavigator(
   {
     Budget: BudgetScreen,
-    AddBudget: AddBudgetScreen,
+    ArrangeBudget: ArrangeBudgetScreen,
   },
-  { headerMode: 'none', transitionConfig }
+  { headerMode: 'none', transitionConfig, initialRouteName: 'Budget' }
 )
 
 export default BudgetStack

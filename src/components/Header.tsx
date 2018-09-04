@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp, withNavigation } from 'react-navigation'
 import { COLORS, FONT_SIZES } from '../utils'
+import StatusBar from './StatusBar'
 
 type Props = {
   title: string
@@ -13,20 +14,23 @@ type Props = {
 
 const Header = ({ title, right, hasBack = false, navigation }: Props) => {
   return (
-    <View style={styles.container}>
-      {hasBack && (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.goBack()
-          }}
-          style={{ marginRight: 20 }}
-        >
-          <Icon name="arrow-left" color="white" size={FONT_SIZES.LARGE} />
-        </TouchableOpacity>
-      )}
-      <Text style={styles.title}>{title}</Text>
-      {right}
-    </View>
+    <Fragment>
+      <StatusBar />
+      <View style={styles.container}>
+        {hasBack && (
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack()
+            }}
+            style={{ marginRight: 20 }}
+          >
+            <Icon name="arrow-left" color="white" size={FONT_SIZES.LARGE} />
+          </TouchableOpacity>
+        )}
+        <Text style={styles.title}>{title}</Text>
+        {right}
+      </View>
+    </Fragment>
   )
 }
 
