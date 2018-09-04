@@ -1,33 +1,33 @@
-import React from 'react';
-import { getRepository } from 'typeorm/browser';
-import { BudgetGroup } from '../entities';
+import React from 'react'
+import { getRepository } from 'typeorm/browser'
+import { BudgetGroup } from '../entities'
 
-type Props = {};
+type Props = {}
 
 type State = {
-  groups: BudgetGroup[];
-};
+  groups: BudgetGroup[]
+}
 
 export interface BudgetContext extends State {}
 
-const { Consumer, Provider } = React.createContext<BudgetContext | null>(null);
+const { Consumer, Provider } = React.createContext<BudgetContext | null>(null)
 
 export class BudgetProvider extends React.Component<Props, State> {
-  state = { groups: [] };
+  state = { groups: [] }
 
   async componentDidMount() {
     const groups = await getRepository(BudgetGroup).find({
       relations: ['items', 'items.transactions'],
-    });
-    this.setState({ groups });
+    })
+    this.setState({ groups })
   }
 
   render() {
     const value: BudgetContext = {
       ...this.state,
-    };
+    }
 
-    return <Provider value={value}>{this.props.children}</Provider>;
+    return <Provider value={value}>{this.props.children}</Provider>
   }
 }
 
@@ -41,4 +41,4 @@ export const withBudget = <Props extends {}>(
       <Component {...props} budgetContext={budgetContext} />
     )}
   </Consumer>
-);
+)

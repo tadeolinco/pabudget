@@ -3,20 +3,20 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
-} from 'typeorm/browser';
-import { AccountTransaction } from './AccountTransaction';
+} from 'typeorm/browser'
+import { AccountTransaction } from './AccountTransaction'
 
 @Entity('account')
 export class Account {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
   @Column({ type: 'int' })
-  name: number;
+  name: number
 
   @OneToMany(
     type => AccountTransaction,
     accountTransaction => accountTransaction.account
   )
-  transactions: AccountTransaction[];
+  transactions: AccountTransaction[]
 }

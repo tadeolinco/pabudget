@@ -1,15 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import { NavigationScreenProp, withNavigation } from 'react-navigation';
-import { COLORS, FONT_SIZES } from '../utils';
+import React from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import Icon from 'react-native-vector-icons/FontAwesome5'
+import { NavigationScreenProp, withNavigation } from 'react-navigation'
+import { COLORS, FONT_SIZES } from '../utils'
 
 type Props = {
-  title: string;
-  right?: React.ReactNode;
-  hasBack?: boolean;
-  navigation?: NavigationScreenProp<any>;
-};
+  title: string
+  right?: React.ReactNode
+  hasBack?: boolean
+  navigation?: NavigationScreenProp<any>
+}
 
 const Header = ({ title, right, hasBack = false, navigation }: Props) => {
   return (
@@ -17,7 +17,7 @@ const Header = ({ title, right, hasBack = false, navigation }: Props) => {
       {hasBack && (
         <TouchableOpacity
           onPress={() => {
-            navigation.goBack();
+            navigation.goBack()
           }}
           style={{ marginRight: 20 }}
         >
@@ -27,8 +27,8 @@ const Header = ({ title, right, hasBack = false, navigation }: Props) => {
       <Text style={styles.title}>{title}</Text>
       {right}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -44,6 +44,6 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE,
     fontSize: FONT_SIZES.LARGE,
   },
-});
+})
 
-export default withNavigation(Header);
+export default withNavigation(Header)

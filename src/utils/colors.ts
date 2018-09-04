@@ -7,6 +7,6 @@ const COLORS = {
   DARK_BLACK: 'rgba(0, 0, 0, 0.6)',
   GRAY: '#e0e1e2',
   DARK_GRAY: '#767676',
-};
+}
 
-export default COLORS;
+export default COLORS

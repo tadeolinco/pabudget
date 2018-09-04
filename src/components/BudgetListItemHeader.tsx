@@ -1,12 +1,12 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { COLORS, FONT_SIZES, toCurrency } from '../utils';
+import React from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+import { COLORS, FONT_SIZES, toCurrency } from '../utils'
 
 type Props = {
-  name: string;
-  totalBudget: number;
-  totalAvailable: number;
-};
+  name: string
+  totalBudget: number
+  totalAvailable: number
+}
 
 const BudgetListItemHeader = ({ name, totalAvailable, totalBudget }: Props) => {
   return (
@@ -57,8 +57,8 @@ const BudgetListItemHeader = ({ name, totalAvailable, totalBudget }: Props) => {
         </Text>
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -83,6 +83,6 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.TINY,
     fontWeight: 'bold',
   },
-});
+})
 
-export default BudgetListItemHeader;
+export default BudgetListItemHeader

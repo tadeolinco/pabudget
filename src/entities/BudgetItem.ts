@@ -4,27 +4,27 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-} from 'typeorm/browser';
-import { AccountTransaction } from './AccountTransaction';
-import { BudgetGroup } from './BudgetGroup';
+} from 'typeorm/browser'
+import { AccountTransaction } from './AccountTransaction'
+import { BudgetGroup } from './BudgetGroup'
 
 @Entity('budgetItem')
 export class BudgetItem {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
   @Column()
-  name: string;
+  name: string
 
   @Column({ type: 'int' })
-  budget: number;
+  budget: number
 
   @ManyToOne(type => BudgetGroup, budgetGroup => budgetGroup.items)
-  group: BudgetGroup;
+  group: BudgetGroup
 
   @OneToMany(
     type => AccountTransaction,
     accountTransaction => accountTransaction.item
   )
-  transactions: AccountTransaction[];
+  transactions: AccountTransaction[]
 }

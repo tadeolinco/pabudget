@@ -1,19 +1,19 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { BudgetGroup } from '../entities';
-import { COLORS } from '../utils';
-import BudgetListItem from './BudgetListItem';
-import BudgetListItemHeader from './BudgetListItemHeader';
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
+import { BudgetGroup } from '../entities'
+import { COLORS } from '../utils'
+import BudgetListItem from './BudgetListItem'
+import BudgetListItemHeader from './BudgetListItemHeader'
 
 type Props = {
-  group: BudgetGroup;
-  first: boolean;
+  group: BudgetGroup
+  first: boolean
   computed: {
-    budget: number;
-    used: number;
-    perItem: object;
-  };
-};
+    budget: number
+    used: number
+    perItem: object
+  }
+}
 
 const BudgetList = ({ group, first = false, computed }: Props) => {
   return (
@@ -32,13 +32,13 @@ const BudgetList = ({ group, first = false, computed }: Props) => {
         />
       ))}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     borderTopColor: COLORS.GRAY,
   },
-});
+})
 
-export default BudgetList;
+export default BudgetList

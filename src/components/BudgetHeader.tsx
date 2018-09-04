@@ -1,11 +1,11 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { COLORS, FONT_SIZES, toCurrency } from '../utils';
+import React from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+import { COLORS, FONT_SIZES, toCurrency } from '../utils'
 
 type Props = {
-  totalBudget: number;
-  totalAvailable: number;
-};
+  totalBudget: number
+  totalAvailable: number
+}
 
 const BudgetHeader = ({ totalBudget, totalAvailable }: Props) => {
   return (
@@ -23,8 +23,8 @@ const BudgetHeader = ({ totalBudget, totalAvailable }: Props) => {
         </Text>
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.REGULAR,
     color: COLORS.WHITE,
   },
-});
+})
 
-export default BudgetHeader;
+export default BudgetHeader

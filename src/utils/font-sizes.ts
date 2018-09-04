@@ -4,6 +4,6 @@ const FONT_SIZES = {
   REGULAR: 20,
   LARGE: 22,
   HUGE: 24,
-};
+}
 
-export default FONT_SIZES;
+export default FONT_SIZES

@@ -1,7 +1,7 @@
-import { Animated, Easing } from 'react-native';
-import { createStackNavigator } from 'react-navigation';
-import AddBudgetScreen from './AddBudgetScreen';
-import BudgetScreen from './BudgetScreen';
+import { Animated, Easing } from 'react-native'
+import { createStackNavigator } from 'react-navigation'
+import AddBudgetScreen from './AddBudgetScreen'
+import BudgetScreen from './BudgetScreen'
 
 const transitionConfig = () => {
   return {
@@ -12,20 +12,20 @@ const transitionConfig = () => {
       useNativeDriver: true,
     },
     screenInterpolator: sceneProps => {
-      const { layout, position, scene } = sceneProps;
+      const { layout, position, scene } = sceneProps
 
-      const thisSceneIndex = scene.index;
-      const width = layout.initWidth;
+      const thisSceneIndex = scene.index
+      const width = layout.initWidth
 
       const translateX = position.interpolate({
         inputRange: [thisSceneIndex - 1, thisSceneIndex],
         outputRange: [width, 0],
-      });
+      })
 
-      return { transform: [{ translateX }] };
+      return { transform: [{ translateX }] }
     },
-  };
-};
+  }
+}
 
 const BudgetStack = createStackNavigator(
   {
@@ -33,6 +33,6 @@ const BudgetStack = createStackNavigator(
     AddBudget: AddBudgetScreen,
   },
   { headerMode: 'none', transitionConfig }
-);
+)
 
-export default BudgetStack;
+export default BudgetStack

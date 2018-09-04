@@ -1,58 +1,58 @@
-import React from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { BudgetItem } from '../entities';
-import { COLORS, FONT_SIZES, toCurrency } from '../utils';
+import React from 'react'
+import { StyleSheet, Text, TextInput, View } from 'react-native'
+import { BudgetItem } from '../entities'
+import { COLORS, FONT_SIZES, toCurrency } from '../utils'
 
 type Props = {
-  item: BudgetItem;
-  available: number;
-  last: boolean;
-};
+  item: BudgetItem
+  available: number
+  last: boolean
+}
 
 type State = {
-  tempBudget: string;
-  isFocused: boolean;
-};
+  tempBudget: string
+  isFocused: boolean
+}
 
 class BudgetListItem extends React.Component<Props, State> {
-  private input!: TextInput;
+  private input!: TextInput
 
   state = {
     tempBudget: this.props.item.budget.toString(),
     isFocused: false,
-  };
+  }
 
   handlePressBudget = () => {
     this.setState({
       isFocused: true,
       tempBudget: this.props.item.budget.toString(),
-    });
-    this.input.focus();
-  };
+    })
+    this.input.focus()
+  }
 
   handleChangeBudget = (text: string) => {
     if (text.length > this.state.tempBudget.length) {
-      const lastCharacter = text[text.length - 1];
-      if (isNaN(+lastCharacter) || lastCharacter === ' ') return;
-      this.setState({ tempBudget: this.state.tempBudget + lastCharacter });
+      const lastCharacter = text[text.length - 1]
+      if (isNaN(+lastCharacter) || lastCharacter === ' ') return
+      this.setState({ tempBudget: this.state.tempBudget + lastCharacter })
     } else {
-      this.setState({ tempBudget: text });
+      this.setState({ tempBudget: text })
     }
-  };
+  }
 
   handleBlurBudget = () => {
     // this.props.updateBudgetItem(this.props.groupId!, this.props._id!, {
     //   budget: +this.state.tempBudget,
     // });
-    this.setState({ isFocused: false });
-  };
+    this.setState({ isFocused: false })
+  }
 
   render() {
     const {
       last,
       available,
       item: { name, budget },
-    } = this.props;
+    } = this.props
 
     return (
       <View style={[styles.container, { borderBottomWidth: last ? 0 : 1 }]}>
@@ -117,7 +117,7 @@ class BudgetListItem extends React.Component<Props, State> {
           </Text>
         </View>
       </View>
-    );
+    )
   }
 }
 
@@ -150,6 +150,6 @@ const styles = StyleSheet.create({
     opacity: 0,
     zIndex: 0,
   },
-});
+})
 
-export default BudgetListItem;
+export default BudgetListItem

@@ -1,27 +1,27 @@
-import React from 'react';
-import { Text, View } from 'react-native';
-import { createConnection } from 'typeorm/browser';
+import React from 'react'
+import { Text, View } from 'react-native'
+import { createConnection } from 'typeorm/browser'
 import {
   Account,
   AccountTransaction,
   BudgetGroup,
   BudgetItem,
-} from '../entities';
+} from '../entities'
 
-type Props = {};
+type Props = {}
 
 type State = {
-  isLoadingDB: boolean;
-};
+  isLoadingDB: boolean
+}
 
 export interface DBContext extends State {}
 
-const { Consumer, Provider } = React.createContext<DBContext | null>(null);
+const { Consumer, Provider } = React.createContext<DBContext | null>(null)
 
 export class DBProvider extends React.Component<Props, State> {
   state = {
     isLoadingDB: true,
-  };
+  }
 
   async componentDidMount() {
     try {
@@ -32,28 +32,28 @@ export class DBProvider extends React.Component<Props, State> {
         logging: ['error', 'query', 'schema'],
         entities: [BudgetGroup, BudgetItem, Account, AccountTransaction],
         synchronize: true,
-      });
+      })
     } catch (err) {
-      console.log({ err });
+      console.log({ err })
     } finally {
-      this.setState({ isLoadingDB: false });
+      this.setState({ isLoadingDB: false })
     }
   }
 
   render() {
-    const value: DBContext = { ...this.state };
+    const value: DBContext = { ...this.state }
 
     const loader = (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{ color: 'black', fontSize: 20 }}>Loading...</Text>
       </View>
-    );
+    )
 
     return this.state.isLoadingDB ? (
       loader
     ) : (
       <Provider value={value}>{this.props.children}</Provider>
-    );
+    )
   }
 }
 
@@ -65,4 +65,4 @@ export const withDB = <Props extends {}>(
       <Component {...props} dbContext={dbContext} />
     )}
   </Consumer>
-);
+)

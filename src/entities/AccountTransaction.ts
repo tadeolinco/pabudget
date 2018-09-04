@@ -3,24 +3,24 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-} from 'typeorm/browser';
-import { Account } from './Account';
-import { BudgetItem } from './BudgetItem';
+} from 'typeorm/browser'
+import { Account } from './Account'
+import { BudgetItem } from './BudgetItem'
 
 @Entity('accountTransaction')
 export class AccountTransaction {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
   @Column()
-  note: string;
+  note: string
 
   @Column({ type: 'int' })
-  amount: number;
+  amount: number
 
   @ManyToOne(type => BudgetItem, budgetItem => budgetItem.transactions)
-  item: BudgetItem;
+  item: BudgetItem
 
   @ManyToOne(type => Account, account => account.transactions)
-  account: Account;
+  account: Account
 }
