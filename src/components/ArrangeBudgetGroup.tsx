@@ -12,34 +12,47 @@ type Props = {
 
 const AddBudgetGroup = ({ data, sortHandlers, last }: Props) => {
   return (
-    <View style={[styles.container, { borderBottomWidth: last ? 0 : 20 }]}>
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        <Text style={styles.groupName}>{data.name}</Text>
+    <View style={[styles.container]}>
+      <View style={styles.row}>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <Text style={styles.groupName}>{data.name}</Text>
+        </View>
+        <TouchableOpacity {...sortHandlers} style={styles.iconContainer}>
+          <Icon
+            name="grip-horizontal"
+            color={COLORS.BLACK}
+            size={FONT_SIZES.TINY}
+          />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        {...sortHandlers}
-        style={{ justifyContent: 'center', paddingHorizontal: 10 }}
-      >
-        <Icon
-          name="grip-horizontal"
-          color={COLORS.BLACK}
-          size={FONT_SIZES.TINY}
-        />
-      </TouchableOpacity>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    padding: 10,
     borderColor: COLORS.GRAY,
+  },
+  row: {
+    flexDirection: 'row',
+    height: 50,
+    paddingHorizontal: 10,
+    borderBottomColor: COLORS.GRAY,
+    borderBottomWidth: 1,
   },
   groupName: {
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.TINY,
     fontWeight: 'bold',
+  },
+  itemName: {
+    color: COLORS.BLACK,
+    fontSize: FONT_SIZES.TINY,
+    fontWeight: 'normal',
+  },
+  iconContainer: {
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
 })
 

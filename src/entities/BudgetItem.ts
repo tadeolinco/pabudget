@@ -19,7 +19,7 @@ export class BudgetItem {
   @Column()
   order: number
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 0 })
   budget: number
 
   @ManyToOne(type => BudgetGroup, budgetGroup => budgetGroup.items)

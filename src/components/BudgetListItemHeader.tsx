@@ -14,10 +14,7 @@ const BudgetListItemHeader = ({ name, totalAvailable, totalBudget }: Props) => {
       <View style={styles.nameContainer}>
         <Text style={[styles.text]}>{name}</Text>
       </View>
-      <View
-        style={styles.numberContainer}
-        onTouchStart={this.handlePressBudget}
-      >
+      <View style={styles.numberContainer}>
         <Text
           style={[
             styles.text,
@@ -28,7 +25,6 @@ const BudgetListItemHeader = ({ name, totalAvailable, totalBudget }: Props) => {
                   : totalBudget > 0
                     ? COLORS.BLUE
                     : COLORS.RED,
-              zIndex: 1,
             },
           ]}
         >
@@ -62,21 +58,20 @@ const BudgetListItemHeader = ({ name, totalAvailable, totalBudget }: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 14,
-    paddingBottom: 14,
+    paddingHorizontal: 10,
+    height: 50,
     flexDirection: 'row',
     borderBottomColor: COLORS.GRAY,
+    borderBottomWidth: 1,
   },
   nameContainer: {
-    flex: 1,
+    flex: 3,
     justifyContent: 'center',
   },
   numberContainer: {
     alignItems: 'flex-end',
     justifyContent: 'center',
-    flex: 1,
+    flex: 2,
   },
   text: {
     color: COLORS.BLACK,

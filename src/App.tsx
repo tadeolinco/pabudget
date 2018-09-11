@@ -1,9 +1,9 @@
 import React from 'react'
-import { createBottomTabNavigator } from 'react-navigation'
+import { createSwitchNavigator } from 'react-navigation'
 import { BudgetProvider, DBProvider } from './context'
 import BudgetScreen from './screens/BudgetScreen'
 
-const RootNavigator = createBottomTabNavigator({
+const RootNavigator = createSwitchNavigator({
   Budget: {
     screen: BudgetScreen,
   },

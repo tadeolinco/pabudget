@@ -1,12 +1,17 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { BudgetItem } from '../entities'
 import { COLORS, FONT_SIZES, toCurrency } from '../utils'
 
 type Props = {
   item: BudgetItem
   available: number
-  last: boolean
 }
 
 type State = {
@@ -49,19 +54,18 @@ class BudgetListItem extends React.Component<Props, State> {
 
   render() {
     const {
-      last,
       available,
       item: { name, budget },
     } = this.props
 
     return (
-      <View style={[styles.container, { borderBottomWidth: last ? 0 : 1 }]}>
+      <View style={[styles.container]}>
         <View style={styles.nameContainer}>
           <Text style={[styles.text]}>{name}</Text>
         </View>
-        <View
+        <TouchableOpacity
           style={styles.numberContainer}
-          onTouchStart={this.handlePressBudget}
+          onPress={this.handlePressBudget}
         >
           <Text
             style={[
@@ -94,9 +98,10 @@ class BudgetListItem extends React.Component<Props, State> {
             onBlur={this.handleBlurBudget}
             selectTextOnFocus
           />
-        </View>
+        </TouchableOpacity>
         <View style={[styles.numberContainer]}>
           <Text
+            adjustsFontSizeToFit
             style={[
               styles.text,
               {
@@ -123,21 +128,20 @@ class BudgetListItem extends React.Component<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 14,
-    paddingBottom: 14,
+    paddingHorizontal: 10,
+    height: 50,
     flexDirection: 'row',
     borderBottomColor: COLORS.GRAY,
+    borderBottomWidth: 1,
   },
   nameContainer: {
-    flex: 1,
+    flex: 3,
     justifyContent: 'center',
   },
   numberContainer: {
+    flex: 2,
     alignItems: 'flex-end',
     justifyContent: 'center',
-    flex: 1,
   },
   text: {
     color: COLORS.BLACK,
@@ -148,7 +152,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     opacity: 0,
-    zIndex: 0,
+    zIndex: -10,
   },
 })
 

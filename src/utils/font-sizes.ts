@@ -1,4 +1,6 @@
 const FONT_SIZES = {
+  TINIEST: 12,
+  TINIER: 14,
   TINY: 16,
   SMALL: 18,
   REGULAR: 20,

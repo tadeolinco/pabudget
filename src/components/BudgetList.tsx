@@ -28,7 +28,6 @@ const BudgetList = ({ group, first = false, computed }: Props) => {
           key={item.id}
           item={item}
           available={item.budget - computed.perItem[item.id]}
-          last={index === group.items.length - 1}
         />
       ))}
     </View>

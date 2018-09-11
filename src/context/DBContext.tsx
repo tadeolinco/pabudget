@@ -1,5 +1,4 @@
 import React from 'react'
-import { Text, View } from 'react-native'
 import { createConnection } from 'typeorm/browser'
 import {
   Account,
@@ -16,7 +15,7 @@ type State = {
 
 export interface DBContext extends State {}
 
-const { Consumer, Provider } = React.createContext<DBContext | null>(null)
+const { Consumer, Provider } = React.createContext<DBContext>(null)
 
 export class DBProvider extends React.Component<Props, State> {
   state = {
@@ -43,26 +42,18 @@ export class DBProvider extends React.Component<Props, State> {
   render() {
     const value: DBContext = { ...this.state }
 
-    const loader = (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: 'black', fontSize: 20 }}>Loading...</Text>
-      </View>
-    )
-
-    return this.state.isLoadingDB ? (
-      loader
-    ) : (
-      <Provider value={value}>{this.props.children}</Provider>
+    return (
+      <Provider value={value}>
+        {!this.state.isLoadingDB && this.props.children}
+      </Provider>
     )
   }
 }
 
 export const withDB = <Props extends {}>(
-  Component: React.ComponentType<Props & { dbContext: DBContext | null }>
+  Component: React.ComponentType<Props & { dbContext: DBContext }>
 ) => (props: Props) => (
   <Consumer>
-    {(dbContext: DBContext | null) => (
-      <Component {...props} dbContext={dbContext} />
-    )}
+    {(dbContext: DBContext) => <Component {...props} dbContext={dbContext} />}
   </Consumer>
 )

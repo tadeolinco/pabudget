@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
-import { BudgetHeader, BudgetList, Header } from '../../components'
+import { BudgetHeader, BudgetList, Header, Tabs } from '../../components'
 import { BudgetContext, withBudget } from '../../context'
 import { COLORS, FONT_SIZES } from '../../utils'
 
@@ -11,9 +11,37 @@ type Props = {
   navigation: NavigationScreenProp<any>
 }
 
-type State = {}
+type State = { active: boolean }
 
 class BudgetScreen extends Component<Props, State> {
+  state = {
+    active: false,
+  }
+
+  tabItems = [
+    {
+      text: 'Budget',
+      icon: 'money-bill-alt',
+      onPress: () => {
+        this.props.navigation.navigate('Budget')
+      },
+    },
+    {
+      text: 'Accounts',
+      icon: 'credit-card',
+      onPress: () => {
+        this.props.navigation.navigate('Budget')
+      },
+    },
+    {
+      text: 'Settings',
+      icon: 'sliders-h',
+      onPress: () => {
+        this.props.navigation.navigate('Budget')
+      },
+    },
+  ]
+
   render() {
     const {
       budgetContext: { groups },
@@ -71,7 +99,7 @@ class BudgetScreen extends Component<Props, State> {
             </Text>
           </View>
         ) : (
-          <ScrollView>
+          <ScrollView style={{ backgroundColor: 'white' }}>
             {groups.map((group, index) => (
               <BudgetList
                 key={group.id}
@@ -82,6 +110,7 @@ class BudgetScreen extends Component<Props, State> {
             ))}
           </ScrollView>
         )}
+        <Tabs items={this.tabItems} />
       </Fragment>
     )
   }
