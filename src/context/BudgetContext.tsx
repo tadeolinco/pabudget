@@ -1,6 +1,6 @@
 import React from 'react'
 import { getRepository } from 'typeorm/browser'
-import { BudgetGroup } from '../entities'
+import { BudgetGroup, BudgetItem } from '../entities'
 
 type Props = {}
 
@@ -11,12 +11,13 @@ type State = {
 export interface BudgetContext extends State {
   fetchBudgetGroups: () => void
   arrangeBudgetGroups: (e: { to: number; from: number }) => void
+  updateBudget: (budgetItem: BudgetItem) => void
 }
 
 const { Consumer, Provider } = React.createContext<BudgetContext>(null)
 
 export class BudgetProvider extends React.Component<Props, State> {
-  state = { groups: [] }
+  state: State = { groups: [] }
 
   async componentDidMount() {
     await this.fetchBudgetGroups()
@@ -48,11 +49,37 @@ export class BudgetProvider extends React.Component<Props, State> {
     })
   }
 
+  updateBudget = async (budgetItem: BudgetItem) => {
+    try {
+      const budgetItemRepository = getRepository(BudgetItem)
+
+      const item = await budgetItemRepository.findOne(budgetItem.id)
+      item.budget = budgetItem.budget
+      await getRepository(BudgetItem).save(item)
+
+      const { id, groupId, budget } = budgetItem
+      this.setState({
+        groups: this.state.groups.map(group => {
+          if (group.id === groupId) {
+            group.items = group.items.map(item => {
+              if (item.id === id) item.budget = budget
+              return item
+            })
+          }
+          return group
+        }),
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   render() {
     const value: BudgetContext = {
       ...this.state,
       fetchBudgetGroups: this.fetchBudgetGroups,
       arrangeBudgetGroups: this.arrangeBudgetGroups,
+      updateBudget: this.updateBudget,
     }
 
     return <Provider value={value}>{this.props.children}</Provider>
@@ -60,10 +87,10 @@ export class BudgetProvider extends React.Component<Props, State> {
 }
 
 export const withBudget = <Props extends {}>(
-  Component: React.ComponentType<Props & { budgetContext: BudgetContext }>
+  Component: React.ComponentType<Props & { budgetContext?: BudgetContext }>
 ) => (props: Props) => (
   <Consumer>
-    {(budgetContext: BudgetContext) => (
+    {(budgetContext?: BudgetContext) => (
       <Component {...props} budgetContext={budgetContext} />
     )}
   </Consumer>

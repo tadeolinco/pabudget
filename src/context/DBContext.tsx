@@ -18,7 +18,7 @@ export interface DBContext extends State {}
 const { Consumer, Provider } = React.createContext<DBContext>(null)
 
 export class DBProvider extends React.Component<Props, State> {
-  state = {
+  state: State = {
     isLoadingDB: true,
   }
 
@@ -51,9 +51,9 @@ export class DBProvider extends React.Component<Props, State> {
 }
 
 export const withDB = <Props extends {}>(
-  Component: React.ComponentType<Props & { dbContext: DBContext }>
+  Component: React.ComponentType<Props & { dbContext?: DBContext }>
 ) => (props: Props) => (
   <Consumer>
-    {(dbContext: DBContext) => <Component {...props} dbContext={dbContext} />}
+    {(dbContext?: DBContext) => <Component {...props} dbContext={dbContext} />}
   </Consumer>
 )

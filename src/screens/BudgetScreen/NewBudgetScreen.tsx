@@ -26,7 +26,7 @@ type State = {
 }
 
 class NewBudgetScreen extends Component<Props, State> {
-  state = {
+  state: State = {
     isAddingGroup: false,
     groupName: '',
     itemNames: [''],
@@ -62,7 +62,7 @@ class NewBudgetScreen extends Component<Props, State> {
 
       this.setState({ isAddingGroup: true })
 
-      const budgetGroupRepository = await getRepository(BudgetGroup)
+      const budgetGroupRepository = getRepository(BudgetGroup)
       const newBudgetGroup = new BudgetGroup()
       newBudgetGroup.name = this.state.groupName.trim()
       newBudgetGroup.order = groups.length

@@ -11,13 +11,9 @@ type Props = {
   navigation: NavigationScreenProp<any>
 }
 
-type State = { active: boolean }
+type State = {}
 
 class BudgetScreen extends Component<Props, State> {
-  state = {
-    active: false,
-  }
-
   tabItems = [
     {
       text: 'Budget',

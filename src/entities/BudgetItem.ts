@@ -22,6 +22,9 @@ export class BudgetItem {
   @Column({ type: 'int', default: 0 })
   budget: number
 
+  @Column({ nullable: true })
+  groupId: number
+
   @ManyToOne(type => BudgetGroup, budgetGroup => budgetGroup.items)
   group: BudgetGroup
 

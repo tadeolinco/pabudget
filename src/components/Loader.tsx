@@ -6,15 +6,22 @@ import {
   Easing,
   StyleSheet,
 } from 'react-native'
+import { AnimatedValue } from 'react-navigation'
 import { COLORS } from '../utils'
 
 const { height, width } = Dimensions.get('window')
 
-type Props = { active: boolean }
-type State = {}
+type Props = {
+  active: boolean
+}
+
+type State = {
+  opacity: AnimatedValue
+  zIndex: number
+}
 
 class Loader extends React.Component<Props, State> {
-  state = {
+  state: State = {
     opacity: new Animated.Value(0),
     zIndex: this.props.active ? 10 : -10,
   }

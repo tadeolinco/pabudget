@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { BudgetContext, withBudget } from '../context'
 import { BudgetItem } from '../entities'
 import { COLORS, FONT_SIZES, toCurrency } from '../utils'
 
 type Props = {
   item: BudgetItem
   available: number
+  budgetContext?: BudgetContext
 }
 
 type State = {
@@ -22,7 +24,7 @@ type State = {
 class BudgetListItem extends React.Component<Props, State> {
   private input!: TextInput
 
-  state = {
+  state: State = {
     tempBudget: this.props.item.budget.toString(),
     isFocused: false,
   }
@@ -45,10 +47,12 @@ class BudgetListItem extends React.Component<Props, State> {
     }
   }
 
-  handleBlurBudget = () => {
-    // this.props.updateBudgetItem(this.props.groupId!, this.props._id!, {
-    //   budget: +this.state.tempBudget,
-    // });
+  handleBlurBudget = async () => {
+    const {
+      item,
+      budgetContext: { updateBudget },
+    } = this.props
+    await updateBudget({ ...item, budget: +this.state.tempBudget })
     this.setState({ isFocused: false })
   }
 
@@ -156,4 +160,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default BudgetListItem
+export default withBudget(BudgetListItem)
