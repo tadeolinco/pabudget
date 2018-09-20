@@ -1,22 +1,45 @@
 import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
+import { NavigationScreenProp, withNavigation } from 'react-navigation'
 import { BudgetGroup } from '../entities'
 import { COLORS, FONT_SIZES } from '../utils'
+import CheckBox from './CheckBox'
 
 type Props = {
   data: BudgetGroup
+  selected: boolean
+  handleSelect: (number) => void
   sortHandlers?: any
-  last: boolean
+  navigation?: NavigationScreenProp<any>
 }
 
-const AddBudgetGroup = ({ data, sortHandlers, last }: Props) => {
+const ArrangeBudgetGroup = ({
+  data,
+  selected,
+  sortHandlers,
+  handleSelect,
+  navigation,
+}: Props) => {
   return (
     <View style={[styles.container]}>
       <View style={styles.row}>
-        <View style={{ flex: 1, justifyContent: 'center' }}>
+        <CheckBox
+          style={styles.checkBox}
+          value={selected}
+          onValueChange={() => {
+            handleSelect(data.id)
+          }}
+        />
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('UpdateBudget', { group: data })
+          }}
+          style={{ flex: 1, justifyContent: 'center' }}
+        >
           <Text style={styles.groupName}>{data.name}</Text>
-        </View>
+        </TouchableOpacity>
+
         <TouchableOpacity {...sortHandlers} style={styles.iconContainer}>
           <Icon
             name="grip-horizontal"
@@ -54,6 +77,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 10,
   },
+  checkBox: {
+    marginRight: 10,
+  },
 })
 
-export default AddBudgetGroup
+export default withNavigation(ArrangeBudgetGroup)

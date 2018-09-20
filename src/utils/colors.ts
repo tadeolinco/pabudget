@@ -5,7 +5,7 @@ const COLORS = {
   WHITE: '#ffffff',
   BLACK: '#1b1c1d',
   DARK_BLACK: 'rgba(0, 0, 0, 0.6)',
-  GRAY: '#e0e1e2',
+  GRAY: '#c7c8c9',
   DARK_GRAY: '#767676',
 }
 

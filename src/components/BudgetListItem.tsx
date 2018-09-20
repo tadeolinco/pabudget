@@ -25,24 +25,26 @@ class BudgetListItem extends React.Component<Props, State> {
   private input!: TextInput
 
   state: State = {
-    tempBudget: this.props.item.budget.toString(),
+    tempBudget: '',
     isFocused: false,
   }
 
   handlePressBudget = () => {
     this.setState({
       isFocused: true,
-      tempBudget: this.props.item.budget.toString(),
+      tempBudget: '',
     })
     this.input.focus()
   }
 
   handleChangeBudget = (text: string) => {
-    if (text.length > this.state.tempBudget.length) {
+    const before = this.state.tempBudget
+    if (text.length >= this.state.tempBudget.length) {
       const lastCharacter = text[text.length - 1]
       if (isNaN(+lastCharacter) || lastCharacter === ' ') return
       this.setState({ tempBudget: this.state.tempBudget + lastCharacter })
     } else {
+      // handle backspace
       this.setState({ tempBudget: text })
     }
   }
@@ -77,12 +79,12 @@ class BudgetListItem extends React.Component<Props, State> {
               {
                 color: this.state.isFocused
                   ? +this.state.tempBudget === 0
-                    ? COLORS.GRAY
+                    ? COLORS.DARK_GRAY
                     : +this.state.tempBudget > 0
                       ? COLORS.BLUE
                       : COLORS.RED
                   : budget === 0
-                    ? COLORS.GRAY
+                    ? COLORS.DARK_GRAY
                     : budget > 0
                       ? COLORS.BLUE
                       : COLORS.RED,
@@ -112,7 +114,7 @@ class BudgetListItem extends React.Component<Props, State> {
                 color: COLORS.WHITE,
                 backgroundColor:
                   available === 0
-                    ? COLORS.GRAY
+                    ? COLORS.DARK_GRAY
                     : available > 0
                       ? COLORS.GREEN
                       : COLORS.RED,

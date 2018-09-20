@@ -5,11 +5,14 @@ import { BudgetGroup, BudgetItem } from '../entities'
 type Props = {}
 
 type State = {
+  isFetchingGroups: boolean
+  isDeletingGroups: boolean
   groups: BudgetGroup[]
 }
 
 export interface BudgetContext extends State {
   fetchBudgetGroups: () => void
+  deleteBudgetGroups: (ids: number[]) => void
   arrangeBudgetGroups: (e: { to: number; from: number }) => void
   updateBudget: (budgetItem: BudgetItem) => void
 }
@@ -17,17 +20,64 @@ export interface BudgetContext extends State {
 const { Consumer, Provider } = React.createContext<BudgetContext>(null)
 
 export class BudgetProvider extends React.Component<Props, State> {
-  state: State = { groups: [] }
+  state: State = {
+    groups: [],
+    isFetchingGroups: true,
+    isDeletingGroups: false,
+  }
 
   async componentDidMount() {
     await this.fetchBudgetGroups()
   }
 
   fetchBudgetGroups = async () => {
-    const groups = await getRepository(BudgetGroup).find({
-      relations: ['items', 'items.transactions'],
-    })
-    this.setState({ groups })
+    this.setState({ isFetchingGroups: true })
+    try {
+      const groups = await getRepository(BudgetGroup).find({
+        relations: ['items', 'items.transactions'],
+        order: {
+          order: 'ASC',
+        },
+      })
+      this.setState({ groups })
+    } catch (err) {
+      console.warn(err)
+    } finally {
+      this.setState({ isFetchingGroups: false })
+    }
+  }
+
+  deleteBudgetGroups = async (ids: number[]) => {
+    this.setState({ isDeletingGroups: true })
+    try {
+      const minOrder = (await getRepository(BudgetGroup).findByIds(ids)).reduce(
+        (acc, curr) => {
+          if (curr.order < acc) {
+            return curr.order
+          }
+          return acc
+        },
+        Infinity
+      )
+
+      const groups = this.state.groups
+        .filter(group => !ids.includes(group.id))
+        .map(group => {
+          if (group.order > minOrder) group.order = group.order - ids.length
+          return group
+        })
+
+      await Promise.all(
+        this.state.groups.map(group => getRepository(BudgetGroup).save(group))
+      )
+
+      await getRepository(BudgetGroup).delete(ids)
+      this.setState({ groups })
+    } catch (err) {
+      console.warn(err)
+    } finally {
+      this.setState({ isDeletingGroups: false })
+    }
   }
 
   arrangeBudgetGroups = (e: { to: number; from: number }) => {
@@ -70,7 +120,7 @@ export class BudgetProvider extends React.Component<Props, State> {
         }),
       })
     } catch (err) {
-      console.log(err)
+      console.warn(err)
     }
   }
 
@@ -78,6 +128,7 @@ export class BudgetProvider extends React.Component<Props, State> {
     const value: BudgetContext = {
       ...this.state,
       fetchBudgetGroups: this.fetchBudgetGroups,
+      deleteBudgetGroups: this.deleteBudgetGroups,
       arrangeBudgetGroups: this.arrangeBudgetGroups,
       updateBudget: this.updateBudget,
     }

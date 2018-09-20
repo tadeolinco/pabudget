@@ -17,13 +17,13 @@ type Props = {
 
 type State = {
   opacity: AnimatedValue
-  zIndex: number
+  zIndex: AnimatedValue
 }
 
 class Loader extends React.Component<Props, State> {
   state: State = {
-    opacity: new Animated.Value(0),
-    zIndex: this.props.active ? 10 : -10,
+    opacity: new Animated.Value(this.props.active ? 1 : 0),
+    zIndex: new Animated.Value(this.props.active ? 10 : -10),
   }
 
   componentDidUpdate(prevProps) {

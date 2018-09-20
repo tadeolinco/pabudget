@@ -2,11 +2,11 @@ import React from 'react'
 import { StyleSheet, TextInput, TextInputProps } from 'react-native'
 import { COLORS, FONT_SIZES } from '../utils'
 
-const Input = (props: TextInputProps) => {
+const Input = ({ style, ...props }: TextInputProps) => {
   return (
     <TextInput
       {...props}
-      style={[styles.input, props.style]}
+      style={[styles.input, style]}
       selectionColor={COLORS.DARK_GRAY}
     />
   )

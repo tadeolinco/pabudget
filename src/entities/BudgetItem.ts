@@ -25,7 +25,9 @@ export class BudgetItem {
   @Column({ nullable: true })
   groupId: number
 
-  @ManyToOne(type => BudgetGroup, budgetGroup => budgetGroup.items)
+  @ManyToOne(type => BudgetGroup, budgetGroup => budgetGroup.items, {
+    onDelete: 'CASCADE',
+  })
   group: BudgetGroup
 
   @OneToMany(

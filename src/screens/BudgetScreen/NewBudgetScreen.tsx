@@ -83,27 +83,30 @@ class NewBudgetScreen extends Component<Props, State> {
       await fetchBudgetGroups()
       this.props.navigation.goBack()
     } catch (err) {
-      console.log(err)
+      console.warn(err)
     } finally {
       this.setState({ isAddingGroup: false })
     }
   }
 
-  tabItems = [
-    {
-      text: 'Add Item',
-      icon: 'plus',
-      onPress: this.handleAddItem,
-    },
-    {
-      text: 'Add Group',
-      icon: 'check',
-      onPress: this.handleAddGroup,
-    },
-  ]
-
   render() {
     const { isAddingGroup, groupName, itemNames } = this.state
+
+    const tabItems = [
+      {
+        text: 'Add Item',
+        icon: 'plus',
+        onPress: this.handleAddItem,
+      },
+      {
+        text: 'Add Group',
+        icon: 'check',
+        onPress: this.handleAddGroup,
+        disabled:
+          groupName.trim().length === 0 ||
+          !itemNames.some(name => name.trim().length > 0),
+      },
+    ]
 
     return (
       <Fragment>
@@ -156,8 +159,8 @@ class NewBudgetScreen extends Component<Props, State> {
             </View>
           ))}
         </ScrollView>
-        <Tabs items={this.tabItems} />
-        <Loader active={this.state.isAddingGroup} />
+        <Tabs items={tabItems} />
+        <Loader active={isAddingGroup} />
       </Fragment>
     )
   }

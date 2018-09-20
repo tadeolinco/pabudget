@@ -30,8 +30,21 @@ const Tabs = ({ items }: Props) => {
             onPress={item.onPress}
             style={styles.touchable}
           >
-            <Icon name={item.icon} style={styles.icon} />
-            <Text style={styles.text}>{item.text}</Text>
+            <Icon
+              name={item.icon}
+              style={[
+                styles.icon,
+                { color: item.disabled ? COLORS.GRAY : COLORS.DARK_GRAY },
+              ]}
+            />
+            <Text
+              style={[
+                styles.text,
+                { color: item.disabled ? COLORS.GRAY : COLORS.DARK_GRAY },
+              ]}
+            >
+              {item.text}
+            </Text>
           </TouchableOpacity>
         </View>
       ))}
@@ -57,12 +70,10 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: FONT_SIZES.REGULAR,
-    color: COLORS.DARK_GRAY,
   },
   text: {
     marginTop: 5,
     fontSize: FONT_SIZES.TINIEST,
-    color: COLORS.DARK_GRAY,
   },
 })
 

@@ -1,5 +1,6 @@
 import React from 'react'
 import { createConnection } from 'typeorm/browser'
+import { Loader } from '../components'
 import {
   Account,
   AccountTransaction,
@@ -26,14 +27,14 @@ export class DBProvider extends React.Component<Props, State> {
     try {
       await createConnection({
         type: 'react-native',
-        database: 'pabudget2',
+        database: 'pabudget3',
         location: 'default',
         logging: ['error', 'query', 'schema'],
         entities: [BudgetGroup, BudgetItem, Account, AccountTransaction],
         synchronize: true,
       })
     } catch (err) {
-      console.log({ err })
+      console.warn(err)
     } finally {
       this.setState({ isLoadingDB: false })
     }
@@ -44,6 +45,7 @@ export class DBProvider extends React.Component<Props, State> {
 
     return (
       <Provider value={value}>
+        <Loader active={this.state.isLoadingDB} />
         {!this.state.isLoadingDB && this.props.children}
       </Provider>
     )

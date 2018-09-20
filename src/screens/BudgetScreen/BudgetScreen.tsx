@@ -1,8 +1,20 @@
 import React, { Component, Fragment } from 'react'
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
-import { BudgetHeader, BudgetList, Header, Tabs } from '../../components'
+import {
+  BudgetHeader,
+  BudgetList,
+  Header,
+  Loader,
+  Tabs,
+} from '../../components'
 import { BudgetContext, withBudget } from '../../context'
 import { COLORS, FONT_SIZES } from '../../utils'
 
@@ -40,7 +52,7 @@ class BudgetScreen extends Component<Props, State> {
 
   render() {
     const {
-      budgetContext: { groups },
+      budgetContext: { groups, isFetchingGroups },
     } = this.props
     let totalBudget = 0
     let totalUsed = 0
@@ -82,20 +94,11 @@ class BudgetScreen extends Component<Props, State> {
           totalAvailable={totalAvailable}
         />
         {groups.length === 0 ? (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'white',
-            }}
-          >
-            <Text style={{ color: COLORS.BLACK, fontSize: FONT_SIZES.HUGE }}>
-              No Budget Yet
-            </Text>
+          <View style={[styles.container, styles.center]}>
+            <Text style={styles.text}>No budget groups yet.</Text>
           </View>
         ) : (
-          <ScrollView style={{ backgroundColor: 'white' }}>
+          <ScrollView style={styles.container}>
             {groups.map((group, index) => (
               <BudgetList
                 key={group.id}
@@ -107,9 +110,25 @@ class BudgetScreen extends Component<Props, State> {
           </ScrollView>
         )}
         <Tabs items={this.tabItems} />
+        <Loader active={isFetchingGroups} />
       </Fragment>
     )
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    color: COLORS.DARK_GRAY,
+    fontSize: FONT_SIZES.TINY,
+  },
+})
 
 export default withBudget(BudgetScreen)

@@ -21,7 +21,7 @@ const BudgetListItemHeader = ({ name, totalAvailable, totalBudget }: Props) => {
             {
               color:
                 totalBudget === 0
-                  ? COLORS.GRAY
+                  ? COLORS.DARK_GRAY
                   : totalBudget > 0
                     ? COLORS.BLUE
                     : COLORS.RED,
@@ -39,7 +39,7 @@ const BudgetListItemHeader = ({ name, totalAvailable, totalBudget }: Props) => {
               color: COLORS.WHITE,
               backgroundColor:
                 totalAvailable === 0
-                  ? COLORS.GRAY
+                  ? COLORS.DARK_GRAY
                   : totalAvailable > 0
                     ? COLORS.GREEN
                     : COLORS.RED,

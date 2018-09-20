@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import SortableListView from 'react-native-sortable-listview'
 import { NavigationScreenProp } from 'react-navigation'
-import { ArrangeBudgetGroup, Header, Tabs } from '../../components'
+import { ArrangeBudgetGroup, Header, Loader, Tabs } from '../../components'
 import { BudgetContext, withBudget } from '../../context'
 import { BudgetGroup } from '../../entities'
 import { COLORS, FONT_SIZES } from '../../utils'
@@ -12,26 +12,57 @@ type Props = {
   budgetContext: BudgetContext
 }
 
-type State = {}
+type State = {
+  selectedGroups: Set<number>
+}
 
 class AddBudgetScreen extends React.Component<Props, State> {
-  tabItems = [
-    {
-      text: 'Delete',
-      icon: 'trash-alt',
-      onPress: () => {},
-    },
-    {
-      text: 'New Group',
-      icon: 'plus-circle',
-      onPress: () => {
-        this.props.navigation.navigate('NewBudget')
-      },
-    },
-  ]
+  state: State = {
+    selectedGroups: new Set(),
+  }
+
+  selectGroup = (id: number) => {
+    const { selectedGroups } = this.state
+
+    if (selectedGroups.has(id)) {
+      selectedGroups.delete(id)
+    } else {
+      selectedGroups.add(id)
+    }
+
+    this.setState({ selectedGroups })
+  }
+
+  onDeleteBudgetGroups = async () => {
+    await this.props.budgetContext.deleteBudgetGroups(
+      Array.from(this.state.selectedGroups.values())
+    )
+    this.setState({ selectedGroups: new Set() })
+  }
 
   render() {
-    const { groups, arrangeBudgetGroups } = this.props.budgetContext
+    const tabItems = [
+      {
+        text: 'Delete',
+        icon: 'trash-alt',
+        onPress: this.onDeleteBudgetGroups,
+        disabled: !this.state.selectedGroups.size,
+      },
+      {
+        text: 'New Group',
+        icon: 'plus-circle',
+        onPress: () => {
+          this.props.navigation.navigate('NewBudget')
+        },
+      },
+    ]
+
+    const { selectedGroups } = this.state
+    const {
+      groups,
+      arrangeBudgetGroups,
+      isDeletingGroups,
+    } = this.props.budgetContext
     const sortedGroups = groups.reduce((acc, curr) => {
       acc[curr.order] = curr
       return acc
@@ -45,22 +76,33 @@ class AddBudgetScreen extends React.Component<Props, State> {
       <Fragment>
         <Header title="Arrange Budget" hasBack />
         <View style={styles.container}>
-          <SortableListView
-            moveOnPressIn
-            activeOpacity={0.5}
-            data={sortedGroups}
-            order={order}
-            renderRow={(row: BudgetGroup) => (
-              <ArrangeBudgetGroup
-                data={row}
-                last={row.order === groups.length - 1}
-              />
-            )}
-            onRowMoved={arrangeBudgetGroups}
-            sortRowStyle={{ backgroundColor: COLORS.GRAY }}
-          />
+          {groups.length ? (
+            <SortableListView
+              moveOnPressIn
+              activeOpacity={0.5}
+              data={sortedGroups}
+              order={order}
+              renderRow={(row: BudgetGroup) => (
+                <ArrangeBudgetGroup
+                  data={row}
+                  selected={selectedGroups.has(row.id)}
+                  handleSelect={this.selectGroup}
+                />
+              )}
+              rowHasChanged={a => {
+                return true
+              }}
+              onRowMoved={arrangeBudgetGroups}
+              sortRowStyle={{ backgroundColor: COLORS.GRAY }}
+            />
+          ) : (
+            <View style={[styles.container, styles.center]}>
+              <Text style={styles.text}>No budget groups to arrange.</Text>
+            </View>
+          )}
         </View>
-        <Tabs items={this.tabItems} />
+        <Tabs items={tabItems} />
+        <Loader active={isDeletingGroups} />
       </Fragment>
     )
   }
@@ -71,9 +113,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   label: {
     fontSize: FONT_SIZES.REGULAR,
     marginBottom: 10,
+  },
+  text: {
+    color: COLORS.DARK_GRAY,
+    fontSize: FONT_SIZES.TINY,
   },
 })
 
