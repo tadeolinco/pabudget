@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  FlatList,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
@@ -57,14 +58,19 @@ class BudgetScreen extends Component<Props, State> {
           </View>
         ) : (
           <ScrollView style={styles.container}>
-            {groups.map((group, index) => (
-              <BudgetList
-                key={group.id}
-                group={group}
-                totalPerGroup={totalPerGroup.get(group.id)}
-                first={index === 0}
-              />
-            ))}
+            <FlatList
+              keyExtractor={group => String(group.id)}
+              data={groups}
+              extraData={totalPerGroup}
+              renderItem={({ item: group, index }) => (
+                <BudgetList
+                  key={group.id}
+                  group={group}
+                  totalPerGroup={totalPerGroup.get(group.id)}
+                  first={index === 0}
+                />
+              )}
+            />
           </ScrollView>
         )}
         <MainTabs />

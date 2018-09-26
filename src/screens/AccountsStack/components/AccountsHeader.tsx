@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { COLORS, FONT_SIZES, toCurrency } from '../../../utils'
-import { AccountsContext } from '../../../context'
+import { AccountsContext, withAccounts } from '../../../context'
 
 type Props = {
   accountsContext?: AccountsContext
@@ -72,4 +72,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default AccountsHeader
+export default withAccounts(AccountsHeader)

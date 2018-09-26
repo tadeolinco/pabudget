@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, FlatList } from 'react-native'
 import { BudgetGroup } from '../../../entities'
 import { COLORS } from '../../../utils'
 import BudgetListItem from './BudgetListItem'
@@ -23,13 +23,18 @@ const BudgetList = ({ group, first = false, totalPerGroup }: Props) => {
         totalBudget={totalPerGroup.budget}
         totalAvailable={totalPerGroup.budget - totalPerGroup.used}
       />
-      {group.items.map((item, index: number) => (
-        <BudgetListItem
-          key={item.id}
-          item={item}
-          available={item.budget - totalPerGroup.perItem.get(item.id)}
-        />
-      ))}
+      <FlatList
+        keyExtractor={item => String(item.id)}
+        data={group.items}
+        extraData={totalPerGroup}
+        renderItem={({ item }) => (
+          <BudgetListItem
+            key={item.id}
+            item={item}
+            available={item.budget - totalPerGroup.perItem.get(item.id)}
+          />
+        )}
+      />
     </View>
   )
 }

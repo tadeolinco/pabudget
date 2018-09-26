@@ -10,6 +10,7 @@ type State = {
   netWorth: number
   totalAssets: number
   totalDebts: number
+  amountPerAccount: Map<number, number>
 }
 
 export interface AccountsContext extends State {}
@@ -23,10 +24,12 @@ export class AccountsProvider extends React.Component<Props, State> {
     netWorth: 0,
     totalAssets: 0,
     totalDebts: 0,
+    amountPerAccount: new Map(),
   }
 
   async componentDidMount() {
     await this.fetchAccounts()
+    this.computeTotals()
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -40,9 +43,16 @@ export class AccountsProvider extends React.Component<Props, State> {
   computeTotals = () => {
     let totalAssets = 0
     let totalDebts = 0
+    const amountPerAccount = new Map()
 
     for (const account of this.state.accounts) {
+      amountPerAccount.set(account.id, 0)
       for (const transaction of account.transactions) {
+        amountPerAccount.set(
+          account.id,
+          amountPerAccount.get(account.id) + transaction.account
+        )
+
         if (transaction.amount < 0) {
           totalDebts -= transaction.amount
         } else {
@@ -55,6 +65,7 @@ export class AccountsProvider extends React.Component<Props, State> {
       totalAssets,
       totalDebts,
       netWorth: totalAssets - totalDebts,
+      amountPerAccount,
     })
   }
 
