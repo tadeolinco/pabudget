@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { BudgetContext, withBudget } from '../context'
-import { BudgetItem } from '../entities'
-import { COLORS, FONT_SIZES, toCurrency } from '../utils'
+import { BudgetContext, withBudget } from '../../../context'
+import { BudgetItem } from '../../../entities'
+import { COLORS, FONT_SIZES, toCurrency } from '../../../utils'
 
 type Props = {
   item: BudgetItem

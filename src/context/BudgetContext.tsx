@@ -8,6 +8,12 @@ type State = {
   isFetchingGroups: boolean
   isDeletingGroups: boolean
   groups: BudgetGroup[]
+  totalBudget: number
+  totalAvailable: number
+  totalPerGroup: Map<
+    number,
+    { budget: number; used: number; perItem: Map<number, number> }
+  >
 }
 
 export interface BudgetContext extends State {
@@ -24,10 +30,55 @@ export class BudgetProvider extends React.Component<Props, State> {
     groups: [],
     isFetchingGroups: true,
     isDeletingGroups: false,
+    totalBudget: 0,
+    totalAvailable: 0,
+    totalPerGroup: new Map(),
   }
 
   async componentDidMount() {
     await this.fetchBudgetGroups()
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (
+      JSON.stringify(prevState.groups) !== JSON.stringify(this.state.groups)
+    ) {
+      this.computeTotals()
+    }
+  }
+
+  computeTotals = () => {
+    let totalBudget = 0
+    let totalUsed = 0
+    const totalPerGroup = new Map()
+    for (const group of this.state.groups) {
+      totalPerGroup.set(group.id, { budget: 0, used: 0, perItem: new Map() })
+
+      for (const item of group.items) {
+        totalPerGroup.get(group.id).perItem.set(item.id, 0)
+
+        totalBudget += item.budget
+        totalPerGroup.get(group.id).budget += item.budget
+
+        for (const transaction of item.transactions) {
+          totalPerGroup
+            .get(group.id)
+            .perItem.set(
+              item.id,
+              totalPerGroup.get(group.id).perItem.get(item.id) +
+                transaction.amount
+            )
+          totalPerGroup.get(group.id).used += transaction.amount
+          totalUsed += transaction.amount
+        }
+      }
+    }
+    const totalAvailable = totalBudget - totalUsed
+    this.setState({
+      totalBudget,
+      totalAvailable,
+      totalPerGroup,
+    })
   }
 
   fetchBudgetGroups = async () => {

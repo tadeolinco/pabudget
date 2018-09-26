@@ -11,8 +11,8 @@ export class Account {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column({ type: 'int' })
-  name: number
+  @Column()
+  name: string
 
   @OneToMany(
     type => AccountTransaction,

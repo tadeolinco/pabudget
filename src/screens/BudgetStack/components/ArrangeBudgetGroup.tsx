@@ -2,9 +2,9 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp, withNavigation } from 'react-navigation'
-import { BudgetGroup } from '../entities'
-import { COLORS, FONT_SIZES } from '../utils'
-import CheckBox from './CheckBox'
+import CheckBox from '../../../components/CheckBox'
+import { BudgetGroup } from '../../../entities'
+import { COLORS, FONT_SIZES } from '../../../utils'
 
 type Props = {
   data: BudgetGroup

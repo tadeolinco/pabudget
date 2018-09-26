@@ -8,15 +8,11 @@ import {
 } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
-import {
-  BudgetHeader,
-  BudgetList,
-  Header,
-  Loader,
-  Tabs,
-} from '../../components'
+import { Header, Loader } from '../../components'
 import { BudgetContext, withBudget } from '../../context'
 import { COLORS, FONT_SIZES } from '../../utils'
+import MainTabs from '../MainTabs'
+import { BudgetHeader, BudgetList } from './components'
 
 type Props = {
   budgetContext: BudgetContext
@@ -26,54 +22,16 @@ type Props = {
 type State = {}
 
 class BudgetScreen extends Component<Props, State> {
-  tabItems = [
-    {
-      text: 'Budget',
-      icon: 'money-bill-alt',
-      onPress: () => {
-        this.props.navigation.navigate('Budget')
-      },
-    },
-    {
-      text: 'Accounts',
-      icon: 'credit-card',
-      onPress: () => {
-        this.props.navigation.navigate('Budget')
-      },
-    },
-    {
-      text: 'Settings',
-      icon: 'sliders-h',
-      onPress: () => {
-        this.props.navigation.navigate('Budget')
-      },
-    },
-  ]
-
   render() {
     const {
-      budgetContext: { groups, isFetchingGroups },
+      budgetContext: {
+        groups,
+        isFetchingGroups,
+        totalAvailable,
+        totalBudget,
+        totalPerGroup,
+      },
     } = this.props
-    let totalBudget = 0
-    let totalUsed = 0
-    const computed = {}
-    for (const group of groups) {
-      computed[group.id] = { budget: 0, used: 0, perItem: {} }
-
-      for (const item of group.items) {
-        computed[group.id].perItem[item.id] = 0
-
-        totalBudget += item.budget
-        computed[group.id].budget += item.budget
-
-        for (const transaction of item.transactions) {
-          computed[group.id].perItem[item.id] += transaction.amount
-          computed[group.id].used += transaction.amount
-          totalUsed += transaction.amount
-        }
-      }
-    }
-    const totalAvailable = totalBudget - totalUsed
 
     return (
       <Fragment>
@@ -103,13 +61,13 @@ class BudgetScreen extends Component<Props, State> {
               <BudgetList
                 key={group.id}
                 group={group}
-                computed={computed[group.id]}
+                totalPerGroup={totalPerGroup.get(group.id)}
                 first={index === 0}
               />
             ))}
           </ScrollView>
         )}
-        <Tabs items={this.tabItems} />
+        <MainTabs />
         <Loader active={isFetchingGroups} />
       </Fragment>
     )

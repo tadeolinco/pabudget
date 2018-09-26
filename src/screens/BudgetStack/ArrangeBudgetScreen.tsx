@@ -2,10 +2,11 @@ import React, { Fragment } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import SortableListView from 'react-native-sortable-listview'
 import { NavigationScreenProp } from 'react-navigation'
-import { ArrangeBudgetGroup, Header, Loader, Tabs } from '../../components'
+import { Header, Loader, Tabs } from '../../components'
 import { BudgetContext, withBudget } from '../../context'
 import { BudgetGroup } from '../../entities'
 import { COLORS, FONT_SIZES } from '../../utils'
+import { ArrangeBudgetGroup } from './components'
 
 type Props = {
   navigation: NavigationScreenProp<any>

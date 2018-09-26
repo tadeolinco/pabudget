@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import { COLORS, FONT_SIZES, toCurrency } from '../utils'
+import { COLORS, FONT_SIZES, toCurrency } from '../../../utils'
 
 type Props = {
   totalBudget: number
@@ -11,13 +11,13 @@ const BudgetHeader = ({ totalBudget, totalAvailable }: Props) => {
   return (
     <View style={styles.container}>
       <View style={styles.totalBudgetContainer}>
-        <Text style={styles.text}>Budget</Text>
+        <Text style={styles.text}>Total Budgeted</Text>
         <Text style={[styles.text, { fontWeight: 'bold' }]}>
           {toCurrency(totalBudget)}
         </Text>
       </View>
       <View style={styles.totalAvailableContainer}>
-        <Text style={styles.text}>Available</Text>
+        <Text style={styles.text}>Total Available</Text>
         <Text style={[styles.text, { fontWeight: 'bold' }]}>
           {toCurrency(totalAvailable)}
         </Text>

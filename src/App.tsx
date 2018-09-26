@@ -1,18 +1,23 @@
 import React from 'react'
 import { createSwitchNavigator } from 'react-navigation'
-import { BudgetProvider, DBProvider } from './context'
-import BudgetScreen from './screens/BudgetScreen'
+import { AccountsProvider, BudgetProvider, DBProvider } from './context'
+import AccountsStack from './screens/AccountsStack'
+import BudgetStack from './screens/BudgetStack'
 
-const RootNavigator = createSwitchNavigator({
-  Budget: {
-    screen: BudgetScreen,
+const RootNavigator = createSwitchNavigator(
+  {
+    BudgetStack: BudgetStack,
+    AccountsStack: AccountsStack,
   },
-})
+  { initialRouteName: 'AccountsStack' }
+)
 
 export default () => (
   <DBProvider>
-    <BudgetProvider>
-      <RootNavigator />
-    </BudgetProvider>
+    <AccountsProvider>
+      <BudgetProvider>
+        <RootNavigator />
+      </BudgetProvider>
+    </AccountsProvider>
   </DBProvider>
 )
