@@ -1,11 +1,19 @@
 import React, { Component, Fragment } from 'react'
-import { StyleSheet, View, ScrollView, FlatList } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native'
 import { NavigationScreenProp } from 'react-navigation'
 import { Header, Loader } from '../../components'
 import MainTabs from '../MainTabs'
 import { AccountsHeader } from './components'
 import { withAccounts, AccountsContext } from '../../context'
 import AccountItem from './components/AccountItem'
+import { FONT_SIZES } from '../../utils'
+import Icon from 'react-native-vector-icons/FontAwesome5'
 
 type Props = {
   navigation: NavigationScreenProp<any>
@@ -15,13 +23,28 @@ type Props = {
 type State = {}
 
 class AccountsScreen extends Component<Props, State> {
+  shouldComponentUpdate() {
+    return this.props.navigation.isFocused()
+  }
+
   render() {
     const { accountsContext } = this.props
     const { isFetchingAccounts, accounts, amountPerAccount } = accountsContext
-    console.log(amountPerAccount)
     return (
       <Fragment>
-        <Header title="Accounts" />
+        <Header
+          title="Accounts"
+          right={
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('NewAccount')
+              }}
+              style={{ padding: 10 }}
+            >
+              <Icon name="plus" color="white" size={FONT_SIZES.LARGE} />
+            </TouchableOpacity>
+          }
+        />
         <AccountsHeader />
         <ScrollView style={styles.container}>
           <FlatList
@@ -38,7 +61,7 @@ class AccountsScreen extends Component<Props, State> {
           />
         </ScrollView>
         <MainTabs />
-        <Loader active={isFetchingAccounts} />
+        <Loader active={isFetchingAccounts} text="Getting your accounts..." />
       </Fragment>
     )
   }

@@ -19,33 +19,66 @@ type Props = {
 type State = {
   tempBudget: string
   isFocused: boolean
+  selection: {
+    start: number
+    end: number
+  }
 }
 
 class BudgetListItem extends React.Component<Props, State> {
   private input!: TextInput
 
   state: State = {
-    tempBudget: '',
+    tempBudget: '0',
+    selection: {
+      start: 0,
+      end: 0,
+    },
     isFocused: false,
   }
 
   handlePressBudget = () => {
-    this.setState({
-      isFocused: true,
-      tempBudget: '',
-    })
+    const selection = toCurrency(0).length
+    this.setState(
+      {
+        isFocused: true,
+        tempBudget: '0',
+        selection: {
+          start: selection,
+          end: selection,
+        },
+      },
+      () => {
+        console.log(this.state)
+      }
+    )
     this.input.focus()
   }
 
   handleChangeBudget = (text: string) => {
-    const before = this.state.tempBudget
-    if (text.length >= this.state.tempBudget.length) {
+    if (text.length >= toCurrency(+this.state.tempBudget).length) {
       const lastCharacter = text[text.length - 1]
       if (isNaN(+lastCharacter) || lastCharacter === ' ') return
-      this.setState({ tempBudget: this.state.tempBudget + lastCharacter })
+      const newValue = String(+(this.state.tempBudget + lastCharacter))
+      const selection = toCurrency(+newValue).length
+      this.setState({
+        tempBudget: newValue,
+        selection: {
+          start: selection,
+          end: selection,
+        },
+      })
     } else {
       // handle backspace
-      this.setState({ tempBudget: text })
+      const newValue = String(Math.floor(+this.state.tempBudget / 10))
+      const selection = toCurrency(+newValue).length
+      this.setState({
+        tempBudget: newValue,
+        selection: {
+          start: selection,
+          end: selection,
+        },
+      })
     }
   }
 
@@ -92,17 +125,17 @@ class BudgetListItem extends React.Component<Props, State> {
               },
             ]}
           >
-            {toCurrency(this.state.isFocused ? this.state.tempBudget : budget)}
+            {toCurrency(this.state.isFocused ? +this.state.tempBudget : budget)}
           </Text>
 
           <TextInput
             ref={(input: TextInput) => (this.input = input)}
             style={styles.hide}
             keyboardType="numeric"
-            value={this.state.tempBudget}
+            value={toCurrency(+this.state.tempBudget)}
             onChangeText={this.handleChangeBudget}
             onBlur={this.handleBlurBudget}
-            selectTextOnFocus
+            selection={this.state.selection}
           />
         </TouchableOpacity>
         <View style={[styles.numberContainer]}>

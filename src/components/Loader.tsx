@@ -1,18 +1,21 @@
-import React from 'react'
+import React, { AnimationEventHandler } from 'react'
 import {
   ActivityIndicator,
   Animated,
   Dimensions,
   Easing,
   StyleSheet,
+  Text,
 } from 'react-native'
 import { AnimatedValue } from 'react-navigation'
-import { COLORS } from '../utils'
+import { COLORS, FONT_SIZES } from '../utils'
+import { AnimationTimingFunctionProperty } from 'csstype'
 
 const { height, width } = Dimensions.get('window')
 
 type Props = {
   active: boolean
+  text?: string
 }
 
 type State = {
@@ -21,15 +24,23 @@ type State = {
 }
 
 class Loader extends React.Component<Props, State> {
+  timer = null
+  timeout = null
+
   state: State = {
     opacity: new Animated.Value(this.props.active ? 1 : 0),
     zIndex: new Animated.Value(this.props.active ? 10 : -10),
   }
 
+  componentWillUnmount() {
+    if (this.timer) this.timer.stop()
+    if (this.timeout) clearTimeout(this.timeout)
+  }
+
   componentDidUpdate(prevProps) {
     const ANIMATION_DURATION = 250
     if (prevProps.active !== this.props.active) {
-      Animated.timing(this.state.opacity, {
+      this.timer = Animated.timing(this.state.opacity, {
         toValue: this.props.active ? 1 : 0,
         easing: Easing.inOut(Easing.quad),
         duration: ANIMATION_DURATION,
@@ -37,7 +48,7 @@ class Loader extends React.Component<Props, State> {
       if (this.props.active) {
         this.setState({ zIndex: 10 })
       } else {
-        setTimeout(() => {
+        this.timeout = setTimeout(() => {
           this.setState({
             zIndex: -10,
           })
@@ -60,6 +71,9 @@ class Loader extends React.Component<Props, State> {
         ]}
       >
         <ActivityIndicator color="white" size={100} />
+        {!!this.props.text && (
+          <Text style={styles.text}>{this.props.text}</Text>
+        )}
       </Animated.View>
     )
   }
@@ -71,6 +85,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.DARK_BLACK,
     justifyContent: 'center',
     alignItems: 'center',
+    top: 0,
+    left: 0,
+  },
+  text: {
+    marginTop: 10,
+    color: 'white',
+    fontSize: FONT_SIZES.TINY,
   },
 })
 

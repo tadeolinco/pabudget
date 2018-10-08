@@ -29,7 +29,6 @@ export class DBProvider extends React.Component<Props, State> {
         type: 'react-native',
         database: 'pabudget3',
         location: 'default',
-        logging: ['error', 'query', 'schema'],
         entities: [BudgetGroup, BudgetItem, Account, AccountTransaction],
         synchronize: true,
       })
@@ -45,7 +44,7 @@ export class DBProvider extends React.Component<Props, State> {
 
     return (
       <Provider value={value}>
-        <Loader active={this.state.isLoadingDB} />
+        <Loader active={this.state.isLoadingDB} text="Loading data..." />
         {!this.state.isLoadingDB && this.props.children}
       </Provider>
     )

@@ -39,19 +39,11 @@ export class BudgetProvider extends React.Component<Props, State> {
     await this.fetchBudgetGroups()
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    if (
-      JSON.stringify(prevState.groups) !== JSON.stringify(this.state.groups)
-    ) {
-      this.computeTotals()
-    }
-  }
-
-  computeTotals = () => {
+  computeTotals = (groups: BudgetGroup[]) => {
     let totalBudget = 0
     let totalUsed = 0
     const totalPerGroup = new Map()
-    for (const group of this.state.groups) {
+    for (const group of groups) {
       totalPerGroup.set(group.id, { budget: 0, used: 0, perItem: new Map() })
 
       for (const item of group.items) {
@@ -90,6 +82,7 @@ export class BudgetProvider extends React.Component<Props, State> {
           order: 'ASC',
         },
       })
+      this.computeTotals(groups)
       this.setState({ groups })
     } catch (err) {
       console.warn(err)
@@ -123,6 +116,7 @@ export class BudgetProvider extends React.Component<Props, State> {
       )
 
       await getRepository(BudgetGroup).delete(ids)
+      this.computeTotals(groups)
       this.setState({ groups })
     } catch (err) {
       console.warn(err)
@@ -159,17 +153,17 @@ export class BudgetProvider extends React.Component<Props, State> {
       await getRepository(BudgetItem).save(item)
 
       const { id, groupId, budget } = budgetItem
-      this.setState({
-        groups: this.state.groups.map(group => {
-          if (group.id === groupId) {
-            group.items = group.items.map(item => {
-              if (item.id === id) item.budget = budget
-              return item
-            })
-          }
-          return group
-        }),
+      const groups = this.state.groups.map(group => {
+        if (group.id === groupId) {
+          group.items = group.items.map(item => {
+            if (item.id === id) item.budget = budget
+            return item
+          })
+        }
+        return group
       })
+      this.computeTotals(groups)
+      this.setState({ groups })
     } catch (err) {
       console.warn(err)
     }

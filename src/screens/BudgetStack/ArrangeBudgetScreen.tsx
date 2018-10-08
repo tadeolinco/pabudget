@@ -18,20 +18,22 @@ type State = {
 }
 
 class AddBudgetScreen extends React.Component<Props, State> {
+  shouldComponentUpdate() {
+    return this.props.navigation.isFocused()
+  }
+
   state: State = {
     selectedGroups: new Set(),
   }
 
   selectGroup = (id: number) => {
-    const { selectedGroups } = this.state
-
-    if (selectedGroups.has(id)) {
-      selectedGroups.delete(id)
+    if (this.state.selectedGroups.has(id)) {
+      this.state.selectedGroups.delete(id)
     } else {
-      selectedGroups.add(id)
+      this.state.selectedGroups.add(id)
     }
 
-    this.setState({ selectedGroups })
+    this.setState({ selectedGroups: this.state.selectedGroups })
   }
 
   onDeleteBudgetGroups = async () => {
@@ -58,13 +60,7 @@ class AddBudgetScreen extends React.Component<Props, State> {
       },
     ]
 
-    const { selectedGroups } = this.state
-    const {
-      groups,
-      arrangeBudgetGroups,
-      isDeletingGroups,
-    } = this.props.budgetContext
-    const sortedGroups = groups.reduce((acc, curr) => {
+    const sortedGroups = this.props.budgetContext.groups.reduce((acc, curr) => {
       acc[curr.order] = curr
       return acc
     }, {})
@@ -77,7 +73,7 @@ class AddBudgetScreen extends React.Component<Props, State> {
       <Fragment>
         <Header title="Arrange Budget" hasBack />
         <View style={styles.container}>
-          {groups.length ? (
+          {this.props.budgetContext.groups.length ? (
             <SortableListView
               moveOnPressIn
               activeOpacity={0.5}
@@ -86,14 +82,14 @@ class AddBudgetScreen extends React.Component<Props, State> {
               renderRow={(row: BudgetGroup) => (
                 <ArrangeBudgetGroup
                   data={row}
-                  selected={selectedGroups.has(row.id)}
+                  selected={this.state.selectedGroups.has(row.id)}
                   handleSelect={this.selectGroup}
                 />
               )}
               rowHasChanged={a => {
                 return true
               }}
-              onRowMoved={arrangeBudgetGroups}
+              onRowMoved={this.props.budgetContext.arrangeBudgetGroups}
               sortRowStyle={{ backgroundColor: COLORS.GRAY }}
             />
           ) : (
@@ -103,7 +99,10 @@ class AddBudgetScreen extends React.Component<Props, State> {
           )}
         </View>
         <Tabs items={tabItems} />
-        <Loader active={isDeletingGroups} />
+        <Loader
+          active={this.props.budgetContext.isDeletingGroups}
+          text="Deleting group..."
+        />
       </Fragment>
     )
   }

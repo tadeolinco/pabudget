@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, Component } from 'react'
 import {
   ScrollView,
   StyleSheet,
@@ -30,6 +30,10 @@ class NewBudgetScreen extends Component<Props, State> {
     isAddingGroup: false,
     groupName: '',
     itemNames: [''],
+  }
+
+  shouldComponentUpdate() {
+    return this.props.navigation.isFocused()
   }
 
   handleChangeGroupName = text => {
@@ -90,8 +94,6 @@ class NewBudgetScreen extends Component<Props, State> {
   }
 
   render() {
-    const { isAddingGroup, groupName, itemNames } = this.state
-
     const tabItems = [
       {
         text: 'Add Item',
@@ -103,8 +105,8 @@ class NewBudgetScreen extends Component<Props, State> {
         icon: 'check',
         onPress: this.handleAddGroup,
         disabled:
-          groupName.trim().length === 0 ||
-          !itemNames.some(name => name.trim().length > 0),
+          this.state.groupName.trim().length === 0 ||
+          !this.state.itemNames.some(name => name.trim().length > 0),
       },
     ]
 
@@ -117,16 +119,19 @@ class NewBudgetScreen extends Component<Props, State> {
             <Input
               style={styles.input}
               placeholder="Name"
-              value={groupName}
+              value={this.state.groupName}
               onChangeText={this.handleChangeGroupName}
             />
           </View>
           <Text style={styles.label}>Items</Text>
-          {itemNames.map((item, index) => (
+          {this.state.itemNames.map((item, index) => (
             <View
               style={[
                 styles.itemContainer,
-                { marginBottom: index === itemNames.length - 1 ? 20 : 10 },
+                {
+                  marginBottom:
+                    index === this.state.itemNames.length - 1 ? 20 : 10,
+                },
               ]}
               key={index}
             >
@@ -139,7 +144,7 @@ class NewBudgetScreen extends Component<Props, State> {
                 }}
               />
               <TouchableOpacity
-                disabled={itemNames.length === 1}
+                disabled={this.state.itemNames.length === 1}
                 style={styles.deleteIconContainer}
                 onPress={() => {
                   this.handleDeleteItem(index)
@@ -151,7 +156,9 @@ class NewBudgetScreen extends Component<Props, State> {
                     styles.deleteIcon,
                     {
                       color:
-                        itemNames.length === 1 ? COLORS.GRAY : COLORS.DARK_GRAY,
+                        this.state.itemNames.length === 1
+                          ? COLORS.GRAY
+                          : COLORS.DARK_GRAY,
                     },
                   ]}
                 />
@@ -160,7 +167,10 @@ class NewBudgetScreen extends Component<Props, State> {
           ))}
         </ScrollView>
         <Tabs items={tabItems} />
-        <Loader active={isAddingGroup} />
+        <Loader
+          active={this.state.isAddingGroup}
+          text="Creating new budget group..."
+        />
       </Fragment>
     )
   }

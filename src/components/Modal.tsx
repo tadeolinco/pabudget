@@ -16,7 +16,7 @@ const Modal = ({ isVisibile, onClose, title, children }: Props) => {
     <NativeModal isVisible={isVisibile}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity onPress={onClose}>
+        <TouchableOpacity onPress={onClose} style={{ padding: 10 }}>
           <Icon name="close" style={styles.closeIcon} />
         </TouchableOpacity>
       </View>

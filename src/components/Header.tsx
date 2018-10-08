@@ -22,7 +22,7 @@ const Header = ({ title, right, hasBack = false, navigation }: Props) => {
             onPress={() => {
               navigation.goBack()
             }}
-            style={{ marginRight: 20 }}
+            style={{ padding: 10 }}
           >
             <Icon name="arrow-left" color="white" size={FONT_SIZES.LARGE} />
           </TouchableOpacity>
@@ -37,7 +37,6 @@ const Header = ({ title, right, hasBack = false, navigation }: Props) => {
 const styles = StyleSheet.create({
   container: {
     height: 60,
-    paddingHorizontal: 10,
     backgroundColor: COLORS.BLACK,
     alignItems: 'center',
     justifyContent: 'space-evenly',
@@ -47,6 +46,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: COLORS.WHITE,
     fontSize: FONT_SIZES.LARGE,
+    marginLeft: 10,
   },
 })
 

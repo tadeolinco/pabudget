@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, Component } from 'react'
 import {
   ScrollView,
   StyleSheet,
@@ -23,6 +23,10 @@ type Props = {
 type State = {}
 
 class BudgetScreen extends Component<Props, State> {
+  shouldComponentUpdate() {
+    return this.props.navigation.isFocused()
+  }
+
   render() {
     const {
       budgetContext: {
@@ -43,6 +47,7 @@ class BudgetScreen extends Component<Props, State> {
               onPress={() => {
                 this.props.navigation.navigate('ArrangeBudget')
               }}
+              style={{ padding: 10 }}
             >
               <Icon name="list" color="white" size={FONT_SIZES.LARGE} />
             </TouchableOpacity>
@@ -74,7 +79,10 @@ class BudgetScreen extends Component<Props, State> {
           </ScrollView>
         )}
         <MainTabs />
-        <Loader active={isFetchingGroups} />
+        <Loader
+          active={isFetchingGroups}
+          text="Getting your budget groups..."
+        />
       </Fragment>
     )
   }

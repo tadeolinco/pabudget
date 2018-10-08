@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, Component } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { NavigationScreenProp } from 'react-navigation'
 import { Header, Input } from '../../components'
@@ -16,6 +16,10 @@ type State = {
 class UpdateBudgetScreen extends Component<Props, State> {
   state: State = {
     group: this.props.navigation.getParam('group'),
+  }
+
+  shouldComponentUpdate() {
+    return this.props.navigation.isFocused()
   }
 
   handleChangeGroupName = text => {

@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    padding: 10,
   },
   checkBox: {
     marginRight: 10,

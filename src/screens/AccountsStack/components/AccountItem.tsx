@@ -10,7 +10,6 @@ type Props = {
 }
 
 const AccountItem = ({ account: { name }, totalAmount }: Props) => {
-  console.log(totalAmount)
   return (
     <View style={styles.container}>
       <View style={styles.nameContainer}>
@@ -29,7 +28,7 @@ const AccountItem = ({ account: { name }, totalAmount }: Props) => {
         <TouchableOpacity
           style={{
             justifyContent: 'center',
-            paddingHorizontal: 15,
+            padding: 10,
           }}
         >
           <Icon
