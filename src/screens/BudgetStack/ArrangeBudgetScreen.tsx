@@ -18,10 +18,6 @@ type State = {
 }
 
 class AddBudgetScreen extends React.Component<Props, State> {
-  shouldComponentUpdate() {
-    return this.props.navigation.isFocused()
-  }
-
   state: State = {
     selectedGroups: new Set(),
   }

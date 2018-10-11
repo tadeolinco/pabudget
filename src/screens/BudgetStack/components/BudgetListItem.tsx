@@ -39,19 +39,14 @@ class BudgetListItem extends React.Component<Props, State> {
 
   handlePressBudget = () => {
     const selection = toCurrency(0).length
-    this.setState(
-      {
-        isFocused: true,
-        tempBudget: '0',
-        selection: {
-          start: selection,
-          end: selection,
-        },
+    this.setState({
+      isFocused: true,
+      tempBudget: '0',
+      selection: {
+        start: selection,
+        end: selection,
       },
-      () => {
-        console.log(this.state)
-      }
-    )
+    })
     this.input.focus()
   }
 

@@ -18,10 +18,6 @@ class UpdateBudgetScreen extends Component<Props, State> {
     group: this.props.navigation.getParam('group'),
   }
 
-  shouldComponentUpdate() {
-    return this.props.navigation.isFocused()
-  }
-
   handleChangeGroupName = text => {
     this.setState({ group: { ...this.state.group, name: text } })
   }

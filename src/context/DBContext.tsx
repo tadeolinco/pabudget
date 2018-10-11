@@ -27,7 +27,7 @@ export class DBProvider extends React.Component<Props, State> {
     try {
       await createConnection({
         type: 'react-native',
-        database: 'pabudget3',
+        database: 'pabudget5',
         location: 'default',
         entities: [BudgetGroup, BudgetItem, Account, AccountTransaction],
         synchronize: true,

@@ -1,6 +1,7 @@
 import React from 'react'
 import { getRepository } from 'typeorm/browser'
 import { BudgetGroup, BudgetItem } from '../entities'
+import { isSame } from '../utils'
 
 type Props = {}
 
@@ -39,11 +40,17 @@ export class BudgetProvider extends React.Component<Props, State> {
     await this.fetchBudgetGroups()
   }
 
-  computeTotals = (groups: BudgetGroup[]) => {
+  componentDidUpdate(prevProps, prevState: State) {
+    if (!isSame(prevState.groups, this.state.groups)) {
+      this.computeTotals()
+    }
+  }
+
+  computeTotals = () => {
     let totalBudget = 0
     let totalUsed = 0
     const totalPerGroup = new Map()
-    for (const group of groups) {
+    for (const group of this.state.groups) {
       totalPerGroup.set(group.id, { budget: 0, used: 0, perItem: new Map() })
 
       for (const item of group.items) {
@@ -57,10 +64,10 @@ export class BudgetProvider extends React.Component<Props, State> {
             .get(group.id)
             .perItem.set(
               item.id,
-              totalPerGroup.get(group.id).perItem.get(item.id) +
+              totalPerGroup.get(group.id).perItem.get(item.id) -
                 transaction.amount
             )
-          totalPerGroup.get(group.id).used += transaction.amount
+          totalPerGroup.get(group.id).used -= transaction.amount
           totalUsed += transaction.amount
         }
       }
@@ -82,7 +89,6 @@ export class BudgetProvider extends React.Component<Props, State> {
           order: 'ASC',
         },
       })
-      this.computeTotals(groups)
       this.setState({ groups })
     } catch (err) {
       console.warn(err)
@@ -116,7 +122,6 @@ export class BudgetProvider extends React.Component<Props, State> {
       )
 
       await getRepository(BudgetGroup).delete(ids)
-      this.computeTotals(groups)
       this.setState({ groups })
     } catch (err) {
       console.warn(err)
@@ -153,17 +158,20 @@ export class BudgetProvider extends React.Component<Props, State> {
       await getRepository(BudgetItem).save(item)
 
       const { id, groupId, budget } = budgetItem
-      const groups = this.state.groups.map(group => {
-        if (group.id === groupId) {
-          group.items = group.items.map(item => {
-            if (item.id === id) item.budget = budget
-            return item
-          })
-        }
-        return group
+
+      this.setState({
+        groups: this.state.groups.map(
+          group =>
+            group.id === groupId
+              ? {
+                  ...group,
+                  items: group.items.map(
+                    item => (item.id === id ? { ...item, budget } : item)
+                  ),
+                }
+              : group
+        ),
       })
-      this.computeTotals(groups)
-      this.setState({ groups })
     } catch (err) {
       console.warn(err)
     }

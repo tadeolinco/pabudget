@@ -29,10 +29,6 @@ class NewAccountScreen extends Component<Props, State> {
     },
   }
 
-  shouldComponentUpdate() {
-    return this.props.navigation.isFocused()
-  }
-
   handleChangeName = (text: string) => this.setState({ name: text })
 
   handleChangeValue = (text: string) => {

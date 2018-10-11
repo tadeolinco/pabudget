@@ -9,14 +9,14 @@ type Props = {
 const MainTabs = ({ navigation }: Props) => {
   const tabItems = [
     {
-      text: 'Budget',
-      icon: 'money-bill-alt',
-      onPress: () => navigation.navigate('Budget'),
-    },
-    {
       text: 'Transaction',
       icon: 'plus-circle',
       onPress: () => navigation.navigate('Transaction'),
+    },
+    {
+      text: 'Budget',
+      icon: 'money-bill-alt',
+      onPress: () => navigation.navigate('Budget'),
     },
     {
       text: 'Accounts',

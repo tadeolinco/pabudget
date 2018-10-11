@@ -23,10 +23,6 @@ type Props = {
 type State = {}
 
 class BudgetScreen extends Component<Props, State> {
-  shouldComponentUpdate() {
-    return this.props.navigation.isFocused()
-  }
-
   render() {
     const {
       budgetContext: {
@@ -67,14 +63,16 @@ class BudgetScreen extends Component<Props, State> {
               keyExtractor={group => String(group.id)}
               data={groups}
               extraData={totalPerGroup}
-              renderItem={({ item: group, index }) => (
-                <BudgetList
-                  key={group.id}
-                  group={group}
-                  totalPerGroup={totalPerGroup.get(group.id)}
-                  first={index === 0}
-                />
-              )}
+              renderItem={({ item: group, index }) =>
+                totalPerGroup.get(group.id) ? (
+                  <BudgetList
+                    key={group.id}
+                    group={group}
+                    totalPerGroup={totalPerGroup.get(group.id)}
+                    first={index === 0}
+                  />
+                ) : null
+              }
             />
           </ScrollView>
         )}

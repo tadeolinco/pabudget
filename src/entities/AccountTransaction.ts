@@ -12,15 +12,18 @@ export class AccountTransaction {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column()
+  @Column({ nullable: true })
   note: string
 
   @Column({ type: 'int' })
   amount: number
 
-  @ManyToOne(type => BudgetItem, budgetItem => budgetItem.transactions)
-  item: BudgetItem
+  @ManyToOne(type => Account, account => account.toTransactions)
+  toAccount: Account
 
-  @ManyToOne(type => Account, account => account.transactions)
-  account: Account
+  @ManyToOne(type => Account, account => account.fromTransactions)
+  fromAccount: Account
+
+  @ManyToOne(type => BudgetItem, budgetItem => budgetItem.transactions)
+  toItem: BudgetItem
 }

@@ -32,10 +32,6 @@ class NewBudgetScreen extends Component<Props, State> {
     itemNames: [''],
   }
 
-  shouldComponentUpdate() {
-    return this.props.navigation.isFocused()
-  }
-
   handleChangeGroupName = text => {
     this.setState({ groupName: text })
   }

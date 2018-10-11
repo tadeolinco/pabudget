@@ -32,7 +32,7 @@ export class BudgetItem {
 
   @OneToMany(
     type => AccountTransaction,
-    accountTransaction => accountTransaction.item
+    accountTransaction => accountTransaction.toItem
   )
   transactions: AccountTransaction[]
 }

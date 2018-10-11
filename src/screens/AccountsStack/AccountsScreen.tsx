@@ -23,10 +23,6 @@ type Props = {
 type State = {}
 
 class AccountsScreen extends Component<Props, State> {
-  shouldComponentUpdate() {
-    return this.props.navigation.isFocused()
-  }
-
   render() {
     const { accountsContext } = this.props
     const { isFetchingAccounts, accounts, amountPerAccount } = accountsContext
@@ -51,13 +47,15 @@ class AccountsScreen extends Component<Props, State> {
             keyExtractor={account => String(account.id)}
             data={accounts}
             extraData={accountsContext}
-            renderItem={({ item: account }) => (
-              <AccountItem
-                key={account.id}
-                account={account}
-                totalAmount={amountPerAccount.get(account.id)}
-              />
-            )}
+            renderItem={({ item: account }) =>
+              amountPerAccount.get(account.id) ? (
+                <AccountItem
+                  key={account.id}
+                  account={account}
+                  totalAmount={amountPerAccount.get(account.id)}
+                />
+              ) : null
+            }
           />
         </ScrollView>
         <MainTabs />

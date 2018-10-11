@@ -14,9 +14,9 @@ export class Account {
   @Column()
   name: string
 
-  @OneToMany(
-    type => AccountTransaction,
-    accountTransaction => accountTransaction.account
-  )
-  transactions: AccountTransaction[]
+  @OneToMany(type => AccountTransaction, transaction => transaction.fromAccount)
+  fromTransactions: AccountTransaction[]
+
+  @OneToMany(type => AccountTransaction, transaction => transaction.toAccount)
+  toTransactions: AccountTransaction[]
 }
