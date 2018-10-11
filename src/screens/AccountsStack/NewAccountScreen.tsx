@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react'
 import { StyleSheet, View, Text, Keyboard } from 'react-native'
-import { Header, Tabs, Input, Loader } from '../../components'
+import { Header, Tabs, Input, Loader, CurrencyInput } from '../../components'
 import { FONT_SIZES, COLORS, toCurrency } from '../../utils'
 import { withAccounts, AccountsContext } from '../../context'
 import { NavigationScreenProp } from 'react-navigation'
@@ -12,7 +12,7 @@ type Props = {
 
 type State = {
   name: string
-  initialValue: string
+  initialValue: number
   selection: {
     start: number
     end: number
@@ -22,7 +22,7 @@ type State = {
 class NewAccountScreen extends Component<Props, State> {
   state: State = {
     name: '',
-    initialValue: '0',
+    initialValue: 0,
     selection: {
       start: 0,
       end: 0,
@@ -31,56 +31,11 @@ class NewAccountScreen extends Component<Props, State> {
 
   handleChangeName = (text: string) => this.setState({ name: text })
 
-  handleChangeValue = (text: string) => {
-    if (text.length >= toCurrency(+this.state.initialValue).length) {
-      const lastCharacter = text[text.length - 1]
-      if (
-        (lastCharacter !== '-' && isNaN(+lastCharacter)) ||
-        lastCharacter === ' '
-      )
-        return
-      if (lastCharacter === '-') {
-        // handle negation
-        const newValue = String(-+this.state.initialValue)
-        const selection = toCurrency(+newValue).length
-        this.setState({
-          initialValue: String(-+this.state.initialValue),
-          selection: {
-            start: selection,
-            end: selection,
-          },
-        })
-      } else {
-        const newValue = String(+(this.state.initialValue + lastCharacter))
-        const selection = toCurrency(+newValue).length
-
-        this.setState({
-          initialValue: String(+(this.state.initialValue + lastCharacter)),
-          selection: {
-            start: selection,
-            end: selection,
-          },
-        })
-      }
-    } else {
-      // handle backspace
-      const newValue = String(Math.floor(+this.state.initialValue / 10))
-      const selection = toCurrency(+newValue).length
-      this.setState({
-        initialValue: newValue,
-        selection: {
-          start: selection,
-          end: selection,
-        },
-      })
-    }
-  }
-
   handleAddAccount = async () => {
     Keyboard.dismiss()
     await this.props.accountsContext.addAccount(
       this.state.name.trim(),
-      +this.state.initialValue
+      this.state.initialValue
     )
     this.props.navigation.goBack()
   }
@@ -110,21 +65,11 @@ class NewAccountScreen extends Component<Props, State> {
           </View>
           <Text style={styles.label}>Initial Value</Text>
           <View style={styles.itemContainer}>
-            <Input
-              style={styles.input}
-              value={toCurrency(+this.state.initialValue)}
-              onChangeText={this.handleChangeValue}
-              keyboardType="number-pad"
-              selection={this.state.selection}
-              onFocus={() => {
-                const selection = toCurrency(+this.state.initialValue).length
-                this.setState({
-                  selection: {
-                    start: selection,
-                    end: selection,
-                  },
-                })
-              }}
+            <CurrencyInput
+              value={this.state.initialValue}
+              onChange={initialValue => this.setState({ initialValue })}
+              useDefaultStyles
+              style={{ flex: 1 }}
             />
           </View>
         </View>

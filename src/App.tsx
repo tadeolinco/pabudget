@@ -1,17 +1,17 @@
 import React from 'react'
-import { createSwitchNavigator } from 'react-navigation'
+import { createSwitchNavigator, createStackNavigator } from 'react-navigation'
 import { AccountsProvider, BudgetProvider, DBProvider } from './context'
 import AccountsStack from './screens/AccountsStack'
 import BudgetStack from './screens/BudgetStack'
-import TransactionScreen from './screens/TransactionScreen'
-
+import { transitionConfig } from './utils'
+import TransactionStack from './screens/TransactionStack'
 const RootNavigator = createSwitchNavigator(
   {
     BudgetStack: BudgetStack,
     AccountsStack: AccountsStack,
-    Transaction: TransactionScreen,
+    TransactionStack: TransactionStack,
   },
-  { initialRouteName: 'AccountsStack' }
+  { initialRouteName: 'TransactionStack' }
 )
 
 export default () => (

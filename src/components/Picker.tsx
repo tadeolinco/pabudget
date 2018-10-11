@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     color: COLORS.BLACK,
-    fontSize: FONT_SIZES.TINY,
+    fontSize: FONT_SIZES.REGULAR,
     marginLeft: 10,
   },
   itemContainer: {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.DARK_GRAY,
     borderBottomWidth: 1,
   },
-  text: { color: COLORS.BLACK, fontSize: FONT_SIZES.TINY },
+  text: { color: COLORS.BLACK, fontSize: FONT_SIZES.REGULAR },
 })
 
 export default Picker

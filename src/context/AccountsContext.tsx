@@ -108,6 +108,7 @@ export class AccountsProvider extends React.Component<Props, State> {
       const accountRepository = getRepository(Account)
       const newAccount = new Account()
       newAccount.name = name
+      console.log(newAccount)
       await accountRepository.save(newAccount)
 
       const transactionRepository = getRepository(AccountTransaction)
@@ -121,7 +122,7 @@ export class AccountsProvider extends React.Component<Props, State> {
       console.warn(err)
     }
     this.setState({ isAddingAccount: false })
-    this.fetchAccounts()
+    await this.fetchAccounts()
   }
 
   render() {

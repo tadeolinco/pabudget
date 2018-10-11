@@ -126,7 +126,7 @@ class BudgetListItem extends React.Component<Props, State> {
           <TextInput
             ref={(input: TextInput) => (this.input = input)}
             style={styles.hide}
-            keyboardType="numeric"
+            keyboardType="number-pad"
             value={toCurrency(+this.state.tempBudget)}
             onChangeText={this.handleChangeBudget}
             onBlur={this.handleBlurBudget}
