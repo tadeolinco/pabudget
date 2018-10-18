@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.TINY,
+    borderRadius: 5,
   },
 })
 

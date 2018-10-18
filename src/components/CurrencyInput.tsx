@@ -6,8 +6,11 @@ type Props = {
   value: number
   onChange: (number) => void
   onSubmit?: (number) => void
+  onBlur?: (number) => void
+  onFocus?: () => void
   style?: TextStyle
   useDefaultStyles?: boolean
+  blurOnSubmit: boolean
 }
 
 type State = {
@@ -19,6 +22,8 @@ type State = {
 }
 
 class CurrencyInput extends Component<Props, State> {
+  input: TextInput = null
+
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -87,20 +92,27 @@ class CurrencyInput extends Component<Props, State> {
   render() {
     return (
       <TextInput
+        ref={input => (this.input = input)}
         style={[this.props.useDefaultStyles && styles.input, this.props.style]}
         value={toCurrency(+this.state.value)}
         onChangeText={this.handleChangeValue}
         keyboardType="number-pad"
         selection={this.state.selection}
         onSubmitEditing={this.props.onSubmit}
+        onBlur={this.props.onBlur}
+        blurOnSubmit={this.props.blurOnSubmit || false}
         onFocus={() => {
-          const selection = toCurrency(+this.state.value).length
-          this.setState({
-            selection: {
-              start: selection,
-              end: selection,
+          const selection = toCurrency(this.props.value).length
+          this.setState(
+            {
+              value: String(this.props.value),
+              selection: {
+                start: selection,
+                end: selection,
+              },
             },
-          })
+            this.props.onFocus
+          )
         }}
       />
     )
@@ -115,6 +127,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.TINY,
+    borderRadius: 5,
   },
 })
 

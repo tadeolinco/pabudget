@@ -6,33 +6,81 @@ import {
   TouchableOpacity,
   View,
   FlatList,
+  KeyboardAvoidingView,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
-import { Header, Loader } from '../../components'
+import {
+  Header,
+  Loader,
+  Button,
+  Modal,
+  Input,
+  CurrencyInput,
+} from '../../components'
 import { BudgetContext, withBudget } from '../../context'
 import { COLORS, FONT_SIZES } from '../../utils'
 import MainTabs from '../MainTabs'
-import { BudgetHeader, BudgetList } from './components'
+import { BudgetHeader, BudgetListItem } from './components'
+import SortableListView from 'react-native-sortable-listview'
+import { Budget } from '../../entities'
 
 type Props = {
   budgetContext: BudgetContext
   navigation: NavigationScreenProp<any>
 }
 
-type State = {}
+type State = {
+  isAddModalVisible: boolean
+  newBudgetName: string
+  newBudgetAmount: number
+}
 
 class BudgetScreen extends Component<Props, State> {
+  state: State = {
+    isAddModalVisible: false,
+    newBudgetName: '',
+    newBudgetAmount: 0,
+  }
+
+  handleAddBudget = async () => {
+    this.setState({ isAddModalVisible: false })
+    await this.props.budgetContext.addBudget(
+      this.state.newBudgetName.trim(),
+      this.state.newBudgetAmount
+    )
+  }
+
+  handleOpenAddModal = () => {
+    this.setState({
+      isAddModalVisible: true,
+      newBudgetName: '',
+      newBudgetAmount: 0,
+    })
+  }
+
   render() {
     const {
       budgetContext: {
-        groups,
-        isFetchingGroups,
+        budgets,
+        isFetchingBudgets,
         totalAvailable,
         totalBudget,
-        totalPerGroup,
+        availablePerBudget,
       },
     } = this.props
+
+    const sortedBudgets = this.props.budgetContext.budgets.reduce(
+      (acc, curr) => {
+        acc[curr.order] = curr
+        return acc
+      },
+      {}
+    )
+
+    const order = Object.keys(sortedBudgets)
+      .map(key => sortedBudgets[key].order)
+      .sort((a, b) => a - b)
 
     return (
       <Fragment>
@@ -40,12 +88,12 @@ class BudgetScreen extends Component<Props, State> {
           title="Budget"
           right={
             <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('ArrangeBudget')
+              onPress={this.handleOpenAddModal}
+              style={{
+                padding: 10,
               }}
-              style={{ padding: 10 }}
             >
-              <Icon name="list" color="white" size={FONT_SIZES.LARGE} />
+              <Icon name="plus" color="white" size={FONT_SIZES.LARGE} />
             </TouchableOpacity>
           }
         />
@@ -53,33 +101,70 @@ class BudgetScreen extends Component<Props, State> {
           totalBudget={totalBudget}
           totalAvailable={totalAvailable}
         />
-        {groups.length === 0 ? (
+        {budgets.length === 0 ? (
           <View style={[styles.container, styles.center]}>
-            <Text style={styles.text}>No budget groups yet.</Text>
+            <Button
+              text="ADD BUDGET"
+              onPress={this.handleOpenAddModal}
+              buttonColor={COLORS.BLUE}
+              rounded
+            />
           </View>
         ) : (
-          <ScrollView style={styles.container}>
-            <FlatList
-              keyExtractor={group => String(group.id)}
-              data={groups}
-              extraData={totalPerGroup}
-              renderItem={({ item: group, index }) =>
-                totalPerGroup.get(group.id) ? (
-                  <BudgetList
-                    key={group.id}
-                    group={group}
-                    totalPerGroup={totalPerGroup.get(group.id)}
-                    first={index === 0}
-                  />
-                ) : null
-              }
-            />
-          </ScrollView>
+          <SortableListView
+            moveOnPressIn
+            activeOpacity={0.75}
+            style={{ backgroundColor: 'white' }}
+            data={sortedBudgets}
+            order={order}
+            renderRow={(budget: Budget) => (
+              <BudgetListItem
+                key={budget.id}
+                budget={budget}
+                available={availablePerBudget.get(budget.id)}
+                updateBudget={this.props.budgetContext.updateBudget}
+              />
+            )}
+            rowHasChanged={a => {
+              return true
+            }}
+            onRowMoved={this.props.budgetContext.arrangeBudgets}
+            sortRowStyle={{ backgroundColor: COLORS.GRAY }}
+          />
         )}
         <MainTabs />
+        <Modal
+          isVisibile={this.state.isAddModalVisible}
+          title="Add Budget"
+          onClose={() => this.setState({ isAddModalVisible: false })}
+        >
+          <Text style={styles.label}>Name</Text>
+          <Input
+            placeholder="Food"
+            style={{ marginBottom: 10 }}
+            value={this.state.newBudgetName}
+            onChangeText={newBudgetName => this.setState({ newBudgetName })}
+          />
+          <Text style={styles.label}>Budget</Text>
+          <CurrencyInput
+            style={{ marginBottom: 10 }}
+            value={this.state.newBudgetAmount}
+            onChange={newBudgetAmount => this.setState({ newBudgetAmount })}
+            useDefaultStyles
+          />
+          <Button
+            full
+            rounded
+            text="SUBMIT"
+            onPress={this.handleAddBudget}
+            buttonColor={COLORS.BLUE}
+            disabled={!this.state.newBudgetName.trim()}
+          />
+        </Modal>
+        <Loader active={isFetchingBudgets} text="Getting your budget..." />
         <Loader
-          active={isFetchingGroups}
-          text="Getting your budget groups..."
+          active={this.props.budgetContext.isAddingBudget}
+          text="Creating budget..."
         />
       </Fragment>
     )
@@ -95,9 +180,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  text: {
+  label: {
     color: COLORS.DARK_GRAY,
     fontSize: FONT_SIZES.TINY,
+    marginBottom: 10,
   },
 })
 

@@ -1,12 +1,7 @@
 import React from 'react'
 import { createConnection } from 'typeorm/browser'
 import { Loader } from '../components'
-import {
-  Account,
-  AccountTransaction,
-  BudgetGroup,
-  BudgetItem,
-} from '../entities'
+import { Account, AccountTransaction, Budget } from '../entities'
 
 type Props = {}
 
@@ -29,7 +24,7 @@ export class DBProvider extends React.Component<Props, State> {
         type: 'react-native',
         database: 'pabudget5',
         location: 'default',
-        entities: [BudgetGroup, BudgetItem, Account, AccountTransaction],
+        entities: [Budget, Account, AccountTransaction],
         synchronize: true,
       })
     } catch (err) {

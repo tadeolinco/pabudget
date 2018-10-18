@@ -1,47 +1,49 @@
 import React from 'react'
 import { getRepository } from 'typeorm/browser'
-import { BudgetGroup, BudgetItem } from '../entities'
+import { Budget } from '../entities'
 import { isSame } from '../utils'
 
 type Props = {}
 
 type State = {
-  isFetchingGroups: boolean
-  isDeletingGroups: boolean
-  groups: BudgetGroup[]
+  isFetchingBudgets: boolean
+  isAddingBudget: boolean
+  isUpdatingBudget: boolean
+  isDeletingBudget: boolean
+  budgets: Budget[]
   totalBudget: number
   totalAvailable: number
-  totalPerGroup: Map<
-    number,
-    { budget: number; used: number; perItem: Map<number, number> }
-  >
+  availablePerBudget: Map<number, number>
 }
 
 export interface BudgetContext extends State {
-  fetchBudgetGroups: () => void
-  deleteBudgetGroups: (ids: number[]) => void
-  arrangeBudgetGroups: (e: { to: number; from: number }) => void
-  updateBudget: (budgetItem: BudgetItem) => void
+  fetchBudgets: () => void
+  updateBudget: (newBudget: Budget) => void
+  addBudget: (name: string, amount: number) => void
+  deleteBudgets: (ids: number[]) => void
+  arrangeBudgets: (e: { to: number; from: number }) => void
 }
 
 const { Consumer, Provider } = React.createContext<BudgetContext>(null)
 
 export class BudgetProvider extends React.Component<Props, State> {
   state: State = {
-    groups: [],
-    isFetchingGroups: true,
-    isDeletingGroups: false,
+    budgets: [],
+    isFetchingBudgets: true,
+    isAddingBudget: false,
+    isUpdatingBudget: false,
+    isDeletingBudget: false,
     totalBudget: 0,
     totalAvailable: 0,
-    totalPerGroup: new Map(),
+    availablePerBudget: new Map(),
   }
 
   async componentDidMount() {
-    await this.fetchBudgetGroups()
+    await this.fetchBudgets()
   }
 
   componentDidUpdate(prevProps, prevState: State) {
-    if (!isSame(prevState.groups, this.state.groups)) {
+    if (!isSame(prevState.budgets, this.state.budgets)) {
       this.computeTotals()
     }
   }
@@ -49,58 +51,84 @@ export class BudgetProvider extends React.Component<Props, State> {
   computeTotals = () => {
     let totalBudget = 0
     let totalUsed = 0
-    const totalPerGroup = new Map()
-    for (const group of this.state.groups) {
-      totalPerGroup.set(group.id, { budget: 0, used: 0, perItem: new Map() })
-
-      for (const item of group.items) {
-        totalPerGroup.get(group.id).perItem.set(item.id, 0)
-
-        totalBudget += item.budget
-        totalPerGroup.get(group.id).budget += item.budget
-
-        for (const transaction of item.transactions) {
-          totalPerGroup
-            .get(group.id)
-            .perItem.set(
-              item.id,
-              totalPerGroup.get(group.id).perItem.get(item.id) -
-                transaction.amount
-            )
-          totalPerGroup.get(group.id).used -= transaction.amount
-          totalUsed += transaction.amount
-        }
+    const availablePerBudget = new Map()
+    for (const budget of this.state.budgets) {
+      totalBudget += budget.amount
+      availablePerBudget.set(budget.id, budget.amount)
+      for (const transaction of budget.transactions) {
+        availablePerBudget.set(
+          budget.id,
+          availablePerBudget.get(budget.id) - transaction.amount
+        )
+        totalUsed += transaction.amount
       }
     }
     const totalAvailable = totalBudget - totalUsed
     this.setState({
       totalBudget,
       totalAvailable,
-      totalPerGroup,
+      availablePerBudget,
     })
   }
 
-  fetchBudgetGroups = async () => {
-    this.setState({ isFetchingGroups: true })
+  fetchBudgets = async () => {
+    this.setState({ isFetchingBudgets: true })
     try {
-      const groups = await getRepository(BudgetGroup).find({
-        relations: ['items', 'items.transactions'],
+      const budgets = await getRepository(Budget).find({
+        relations: ['transactions'],
         order: {
           order: 'ASC',
         },
       })
-      this.setState({ groups })
+      console.log(budgets)
+      this.setState({ budgets })
     } catch (err) {
       console.warn(err)
     } finally {
-      this.setState({ isFetchingGroups: false })
+      this.setState({ isFetchingBudgets: false })
     }
   }
 
-  deleteBudgetGroups = async (ids: number[]) => {
-    this.setState({ isDeletingGroups: true })
+  addBudget = async (name: string, amount: number) => {
+    this.setState({ isAddingBudget: true })
     try {
-      const minOrder = (await getRepository(BudgetGroup).findByIds(ids)).reduce(
+      const budgetRepository = getRepository(Budget)
+      const newBudget = new Budget()
+      newBudget.name = name
+      newBudget.amount = amount
+      newBudget.order = this.state.budgets.length
+
+      await budgetRepository.save(newBudget)
+
+      await this.fetchBudgets()
+    } catch (err) {
+      console.warn(err)
+    } finally {
+      this.setState({ isAddingBudget: false })
+    }
+  }
+
+  updateBudget = async (newBudget: Budget) => {
+    this.setState({ isUpdatingBudget: true })
+    try {
+      const budgetRepository = getRepository(Budget)
+      await budgetRepository.save(newBudget)
+      this.setState({
+        budgets: this.state.budgets.map(
+          budget => (budget.id === newBudget.id ? newBudget : budget)
+        ),
+      })
+    } catch (err) {
+      console.warn(err)
+    } finally {
+      this.setState({ isUpdatingBudget: false })
+    }
+  }
+
+  deleteBudgets = async (ids: number[]) => {
+    this.setState({ isDeletingBudget: true })
+    try {
+      const minOrder = (await getRepository(Budget).findByIds(ids)).reduce(
         (acc, curr) => {
           if (curr.order < acc) {
             return curr.order
@@ -110,80 +138,54 @@ export class BudgetProvider extends React.Component<Props, State> {
         Infinity
       )
 
-      const groups = this.state.groups
-        .filter(group => !ids.includes(group.id))
-        .map(group => {
-          if (group.order > minOrder) group.order = group.order - ids.length
-          return group
+      const budgets = this.state.budgets
+        .filter(budget => !ids.includes(budget.id))
+        .map(budget => {
+          if (budget.order > minOrder) budget.order = budget.order - ids.length
+          return budget
         })
 
       await Promise.all(
-        this.state.groups.map(group => getRepository(BudgetGroup).save(group))
+        this.state.budgets.map(budget => getRepository(Budget).save(budget))
       )
 
-      await getRepository(BudgetGroup).delete(ids)
-      this.setState({ groups })
+      await getRepository(Budget).delete(ids)
+      this.setState({ budgets })
     } catch (err) {
       console.warn(err)
     } finally {
-      this.setState({ isDeletingGroups: false })
+      this.setState({ isDeletingBudget: false })
     }
   }
 
-  arrangeBudgetGroups = (e: { to: number; from: number }) => {
+  arrangeBudgets = async (e: { to: number; from: number }) => {
     const { to, from } = e
 
-    const newGroups = [...this.state.groups]
-    newGroups[from].order = to
+    const newBudgets = [...this.state.budgets]
+    newBudgets[from].order = to
     if (to < from) {
       for (let index = to; index < from; index++) {
-        newGroups[index].order++
+        newBudgets[index].order++
       }
     } else {
       for (let index = to; index > from; index--) {
-        newGroups[index].order--
+        newBudgets[index].order--
       }
     }
-    this.setState({
-      groups: newGroups.sort((a, b) => a.order - b.order),
-    })
-  }
-
-  updateBudget = async (budgetItem: BudgetItem) => {
-    try {
-      const budgetItemRepository = getRepository(BudgetItem)
-
-      const item = await budgetItemRepository.findOne(budgetItem.id)
-      item.budget = budgetItem.budget
-      await getRepository(BudgetItem).save(item)
-
-      const { id, groupId, budget } = budgetItem
-
-      this.setState({
-        groups: this.state.groups.map(
-          group =>
-            group.id === groupId
-              ? {
-                  ...group,
-                  items: group.items.map(
-                    item => (item.id === id ? { ...item, budget } : item)
-                  ),
-                }
-              : group
-        ),
-      })
-    } catch (err) {
-      console.warn(err)
-    }
+    const budgets = newBudgets.sort((a, b) => a.order - b.order)
+    this.setState({ budgets })
+    const budgetRepository = getRepository(Budget)
+    await budgetRepository.save(budgets)
   }
 
   render() {
     const value: BudgetContext = {
       ...this.state,
-      fetchBudgetGroups: this.fetchBudgetGroups,
-      deleteBudgetGroups: this.deleteBudgetGroups,
-      arrangeBudgetGroups: this.arrangeBudgetGroups,
+      fetchBudgets: this.fetchBudgets,
       updateBudget: this.updateBudget,
+      addBudget: this.addBudget,
+      deleteBudgets: this.deleteBudgets,
+      arrangeBudgets: this.arrangeBudgets,
     }
 
     return <Provider value={value}>{this.props.children}</Provider>

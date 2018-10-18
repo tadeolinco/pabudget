@@ -15,12 +15,7 @@ import {
   withBudget,
   BudgetContext,
 } from '../../context'
-import {
-  Account,
-  BudgetGroup,
-  BudgetItem,
-  AccountTransaction,
-} from '../../entities'
+import { Account, Budget, AccountTransaction } from '../../entities'
 import { COLORS, FONT_SIZES, isSame, toCurrency } from '../../utils'
 import { getRepository } from 'typeorm/browser'
 
@@ -36,7 +31,7 @@ type Props = {
 
 type State = {
   action: 'PAY' | 'TRANSFER'
-  to?: BudgetItem | Account
+  to?: Budget | Account
   amount: number
   from?: Account
   note: string
@@ -44,7 +39,7 @@ type State = {
   isAddingTransaction: boolean
 
   toOptions: {
-    value: Account | BudgetItem
+    value: Account | Budget
     label: string
   }[]
 
@@ -77,18 +72,16 @@ class TransactionScreen extends Component<Props, State> {
     }))
 
     let toOptions: {
-      value: Account | BudgetItem
+      value: Account | Budget
       label: string
     }[] = [...fromOptions]
 
     if (this.state.action === 'PAY') {
-      for (const group of this.props.budgetContext.groups) {
-        for (const item of group.items) {
-          toOptions.push({
-            value: item,
-            label: `${item.name} (Budget)`,
-          })
-        }
+      for (const budget of this.props.budgetContext.budgets) {
+        toOptions.push({
+          value: budget,
+          label: `${budget.name} (Budget)`,
+        })
       }
     }
 
@@ -109,20 +102,18 @@ class TransactionScreen extends Component<Props, State> {
     }
 
     if (
-      !isSame(prevProps.budgetContext.groups, this.props.budgetContext.groups)
+      !isSame(prevProps.budgetContext.budgets, this.props.budgetContext.budgets)
     ) {
       this.componentDidMount()
     }
 
     if (prevState.action !== this.state.action) {
       const toOptions = []
-      for (const group of this.props.budgetContext.groups) {
-        for (const item of group.items) {
-          toOptions.push({
-            value: item,
-            label: `${item.name} (Budget)`,
-          })
-        }
+      for (const budget of this.props.budgetContext.budgets) {
+        toOptions.push({
+          value: budget,
+          label: `${budget.name} (Budget)`,
+        })
       }
       if (this.state.action === 'PAY') {
         for (const account of this.props.accountsContext.accounts) {

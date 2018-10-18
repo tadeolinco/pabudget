@@ -6,10 +6,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm/browser'
 import { AccountTransaction } from './AccountTransaction'
-import { BudgetGroup } from './BudgetGroup'
 
-@Entity('budgetItem')
-export class BudgetItem {
+@Entity('budget')
+export class Budget {
   @PrimaryGeneratedColumn()
   id: number
 
@@ -20,15 +19,7 @@ export class BudgetItem {
   order: number
 
   @Column({ type: 'int', default: 0 })
-  budget: number
-
-  @Column({ nullable: true })
-  groupId: number
-
-  @ManyToOne(type => BudgetGroup, budgetGroup => budgetGroup.items, {
-    onDelete: 'CASCADE',
-  })
-  group: BudgetGroup
+  amount: number
 
   @OneToMany(
     type => AccountTransaction,

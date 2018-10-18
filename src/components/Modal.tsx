@@ -8,12 +8,16 @@ type Props = {
   title: string
   isVisibile: boolean
   onClose?: () => void
-  children: JSX.Element
+  children: JSX.Element[]
 }
 
 const Modal = ({ isVisibile, onClose, title, children }: Props) => {
   return (
-    <NativeModal isVisible={isVisibile}>
+    <NativeModal
+      isVisible={isVisibile}
+      animationIn="fadeIn"
+      animationOut="fadeOut"
+    >
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
         <TouchableOpacity onPress={onClose} style={{ padding: 10 }}>
@@ -30,7 +34,7 @@ const styles = StyleSheet.create({
   header: {
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
-    padding: 10,
+    paddingLeft: 10,
     backgroundColor: COLORS.BLACK,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -38,11 +42,11 @@ const styles = StyleSheet.create({
   },
   title: {
     color: 'white',
-    fontSize: FONT_SIZES.REGULAR,
+    fontSize: FONT_SIZES.TINY,
   },
   closeIcon: {
     color: 'white',
-    fontSize: FONT_SIZES.LARGE,
+    fontSize: FONT_SIZES.REGULAR,
   },
   body: {
     padding: 10,

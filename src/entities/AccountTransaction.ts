@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm/browser'
 import { Account } from './Account'
-import { BudgetItem } from './BudgetItem'
+import { Budget } from './Budget'
 
 @Entity('accountTransaction')
 export class AccountTransaction {
@@ -24,6 +24,6 @@ export class AccountTransaction {
   @ManyToOne(type => Account, account => account.fromTransactions)
   fromAccount: Account
 
-  @ManyToOne(type => BudgetItem, budgetItem => budgetItem.transactions)
-  toItem: BudgetItem
+  @ManyToOne(type => Budget, budget => budget.transactions)
+  toItem: Budget
 }
