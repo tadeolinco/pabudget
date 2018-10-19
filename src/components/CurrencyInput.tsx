@@ -10,7 +10,7 @@ type Props = {
   onFocus?: () => void
   style?: TextStyle
   useDefaultStyles?: boolean
-  blurOnSubmit: boolean
+  blurOnSubmit?: boolean
 }
 
 type State = {

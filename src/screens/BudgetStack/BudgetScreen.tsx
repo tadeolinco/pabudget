@@ -1,13 +1,5 @@
 import React, { Fragment, Component } from 'react'
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  FlatList,
-  KeyboardAvoidingView,
-} from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
 import {
@@ -111,26 +103,88 @@ class BudgetScreen extends Component<Props, State> {
             />
           </View>
         ) : (
-          <SortableListView
-            moveOnPressIn
-            activeOpacity={0.75}
-            style={{ backgroundColor: 'white' }}
-            data={sortedBudgets}
-            order={order}
-            renderRow={(budget: Budget) => (
-              <BudgetListItem
-                key={budget.id}
-                budget={budget}
-                available={availablePerBudget.get(budget.id)}
-                updateBudget={this.props.budgetContext.updateBudget}
-              />
-            )}
-            rowHasChanged={a => {
-              return true
-            }}
-            onRowMoved={this.props.budgetContext.arrangeBudgets}
-            sortRowStyle={{ backgroundColor: COLORS.GRAY }}
-          />
+          <Fragment>
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: 'white',
+                borderBottomWidth: 1,
+                borderColor: COLORS.GRAY,
+                paddingVertical: 10,
+              }}
+            >
+              <View
+                style={{
+                  paddingLeft: 5,
+                  flex: 3,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: FONT_SIZES.TINY,
+                    fontWeight: 'bold',
+                    color: COLORS.BLACK,
+                  }}
+                >
+                  Name
+                </Text>
+              </View>
+              <View
+                style={{
+                  paddingRight: 5,
+                  flex: 2,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: FONT_SIZES.TINY,
+                    fontWeight: 'bold',
+                    color: COLORS.BLACK,
+                    textAlign: 'right',
+                  }}
+                >
+                  Budget
+                </Text>
+              </View>
+              <View
+                style={{
+                  paddingRight: 5,
+                  flex: 2,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: FONT_SIZES.TINY,
+                    fontWeight: 'bold',
+                    color: COLORS.BLACK,
+                    textAlign: 'right',
+                  }}
+                >
+                  Available
+                </Text>
+              </View>
+            </View>
+            <SortableListView
+              moveOnPressIn
+              activeOpacity={0.75}
+              style={{ backgroundColor: 'white' }}
+              data={sortedBudgets}
+              order={order}
+              renderRow={(budget: Budget) => (
+                <BudgetListItem
+                  key={budget.id}
+                  budget={budget}
+                  available={availablePerBudget.get(budget.id)}
+                  updateBudget={this.props.budgetContext.updateBudget}
+                />
+              )}
+              rowHasChanged={a => {
+                return true
+              }}
+              onRowMoved={this.props.budgetContext.arrangeBudgets}
+              sortRowStyle={{ backgroundColor: COLORS.GRAY }}
+            />
+          </Fragment>
         )}
         <MainTabs />
         <Modal

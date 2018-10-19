@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { COLORS, FONT_SIZES } from '../utils'
+import Color from 'color'
 
 interface TabItem {
   text: string
@@ -28,13 +29,13 @@ const Tabs = ({ items }: Props) => {
               name={item.icon}
               style={[
                 styles.icon,
-                { color: item.disabled ? COLORS.GRAY : COLORS.DARK_GRAY },
+                { color: item.disabled ? COLORS.GRAY : COLORS.WHITE },
               ]}
             />
             <Text
               style={[
                 styles.text,
-                { color: item.disabled ? COLORS.GRAY : COLORS.DARK_GRAY },
+                { color: item.disabled ? COLORS.GRAY : COLORS.WHITE },
               ]}
             >
               {item.text}
@@ -49,6 +50,7 @@ const Tabs = ({ items }: Props) => {
 const styles = StyleSheet.create({
   tabs: {
     flexDirection: 'row',
+    backgroundColor: COLORS.BLACK,
   },
   tabItem: {
     flex: 1,

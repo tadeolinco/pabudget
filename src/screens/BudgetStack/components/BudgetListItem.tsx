@@ -26,12 +26,15 @@ type Props = {
 
 type State = {
   tempAmount: number
-  isFocused: boolean
+  tempName: string
+  isAmountFocused: boolean
+  isNameFocused: boolean
   buttonSize: number
 }
 
 class BudgetListItem extends React.Component<Props, State> {
-  private input!: TextInput
+  private amountInput!: TextInput
+  private nameInput!: TextInput
   private _deltaX: AnimatedValue
   private snapPoint = 100
 
@@ -39,7 +42,9 @@ class BudgetListItem extends React.Component<Props, State> {
     super(props)
     this.state = {
       tempAmount: 0,
-      isFocused: false,
+      tempName: props.budget.name,
+      isAmountFocused: false,
+      isNameFocused: false,
       buttonSize: 0,
     }
 
@@ -47,20 +52,114 @@ class BudgetListItem extends React.Component<Props, State> {
   }
 
   handlePressBudget = () => {
-    this.input.focus()
+    this.amountInput.focus()
     this.setState({
-      isFocused: true,
+      isAmountFocused: true,
       tempAmount: 0,
     })
   }
 
-  handleSubmitBudget = async () => {
+  handlePressName = () => {
+    this.nameInput.focus()
+    this.setState({
+      tempName: this.props.budget.name,
+      isNameFocused: true,
+    })
+  }
+
+  handleChangeName = tempName => {
+    this.setState({ tempName })
+  }
+
+  handleSubmitBudgetAmount = async () => {
     await this.props.updateBudget({
       ...this.props.budget,
       amount: this.state.tempAmount,
     })
     Keyboard.dismiss()
-    this.setState({ isFocused: false, tempAmount: 0 })
+    this.setState({ isAmountFocused: false, tempAmount: 0 })
+  }
+
+  handleSubmitBudgetName = async () => {
+    const trimmedNamed = this.state.tempName.trim()
+    if (trimmedNamed) {
+      await this.props.updateBudget({
+        ...this.props.budget,
+        name: trimmedNamed,
+      })
+    }
+    Keyboard.dismiss()
+    this.setState({ isNameFocused: false, tempName: this.props.budget.name })
+  }
+
+  renderSlider = () => {
+    const xInterpolate = this._deltaX.interpolate({
+      inputRange: [0, this.snapPoint],
+      outputRange: [-this.snapPoint, 0],
+    })
+    return (
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          flexDirection: 'row',
+        }}
+      >
+        <Animated.View
+          style={[
+            {
+              height: this.state.buttonSize,
+              width: this.state.buttonSize,
+            },
+            { transform: [{ translateX: xInterpolate }] },
+          ]}
+        >
+          <TouchableHighlight
+            underlayColor={Color(COLORS.DARK_GRAY).darken(0.25)}
+            style={{
+              height: this.state.buttonSize,
+              width: this.state.buttonSize,
+              backgroundColor: COLORS.DARK_GRAY,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            {...this.props.sortHandlers}
+          >
+            <Icon
+              name="grip-horizontal"
+              style={{ fontSize: FONT_SIZES.REGULAR, color: 'white' }}
+            />
+          </TouchableHighlight>
+        </Animated.View>
+        <Animated.View
+          style={[
+            {
+              height: this.state.buttonSize,
+              width: this.state.buttonSize,
+            },
+            { transform: [{ translateX: xInterpolate }] },
+          ]}
+        >
+          <TouchableHighlight
+            underlayColor={Color(COLORS.RED).darken(0.25)}
+            style={{
+              height: this.state.buttonSize,
+              width: this.state.buttonSize,
+              backgroundColor: COLORS.RED,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onPress={() => {}}
+          >
+            <Icon
+              name="trash-alt"
+              style={{ fontSize: FONT_SIZES.REGULAR, color: 'white' }}
+            />
+          </TouchableHighlight>
+        </Animated.View>
+      </View>
+    )
   }
 
   render() {
@@ -69,74 +168,9 @@ class BudgetListItem extends React.Component<Props, State> {
       budget: { name, amount },
     } = this.props
 
-    const xInterpolate = this._deltaX.interpolate({
-      inputRange: [0, this.snapPoint],
-      outputRange: [-this.snapPoint, 0],
-    })
-
     return (
       <View>
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            flexDirection: 'row',
-          }}
-        >
-          <Animated.View
-            style={[
-              {
-                height: this.state.buttonSize,
-                width: this.state.buttonSize,
-              },
-              { transform: [{ translateX: xInterpolate }] },
-            ]}
-          >
-            <TouchableHighlight
-              underlayColor={Color(COLORS.DARK_GRAY).darken(0.25)}
-              style={{
-                height: this.state.buttonSize,
-                width: this.state.buttonSize,
-                backgroundColor: COLORS.DARK_GRAY,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-              {...this.props.sortHandlers}
-            >
-              <Icon
-                name="grip-horizontal"
-                style={{ fontSize: FONT_SIZES.REGULAR, color: 'white' }}
-              />
-            </TouchableHighlight>
-          </Animated.View>
-          <Animated.View
-            style={[
-              {
-                height: this.state.buttonSize,
-                width: this.state.buttonSize,
-              },
-              { transform: [{ translateX: xInterpolate }] },
-            ]}
-          >
-            <TouchableHighlight
-              underlayColor={Color(COLORS.RED).darken(0.25)}
-              style={{
-                height: this.state.buttonSize,
-                width: this.state.buttonSize,
-                backgroundColor: COLORS.RED,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-              onPress={() => {}}
-            >
-              <Icon
-                name="trash-alt"
-                style={{ fontSize: FONT_SIZES.REGULAR, color: 'white' }}
-              />
-            </TouchableHighlight>
-          </Animated.View>
-        </View>
+        {this.renderSlider()}
         <Interactable.View
           horizontalOnly
           snapPoints={[{ x: 0 }, { x: this.snapPoint }]}
@@ -161,9 +195,30 @@ class BudgetListItem extends React.Component<Props, State> {
               this.snapPoint = height * 2
             }}
           >
-            <View style={styles.nameContainer}>
-              <Text style={[styles.text]}>{name}</Text>
-            </View>
+            <TouchableOpacity
+              style={styles.nameContainer}
+              onPress={this.handlePressName}
+            >
+              <TextInput
+                editable={this.state.isNameFocused}
+                ref={ref => (this.nameInput = ref)}
+                style={styles.text}
+                value={this.state.tempName}
+                onChangeText={this.handleChangeName}
+                onSubmitEditing={this.handleSubmitBudgetName}
+                blurOnSubmit={false}
+                onFocus={() =>
+                  this.setState({ tempName: this.props.budget.name })
+                }
+                onBlur={() =>
+                  this.setState({
+                    isNameFocused: false,
+                    tempName: this.props.budget.name,
+                  })
+                }
+              />
+              {/* <Text style={[styles.text]}>{name}</Text> */}
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.numberContainer}
               onPress={this.handlePressBudget}
@@ -172,7 +227,7 @@ class BudgetListItem extends React.Component<Props, State> {
                 style={[
                   styles.text,
                   {
-                    color: this.state.isFocused
+                    color: this.state.isAmountFocused
                       ? this.state.tempAmount === 0
                         ? COLORS.DARK_GRAY
                         : this.state.tempAmount > 0
@@ -188,13 +243,13 @@ class BudgetListItem extends React.Component<Props, State> {
                 ]}
               >
                 {toCurrency(
-                  this.state.isFocused ? this.state.tempAmount : amount
+                  this.state.isAmountFocused ? this.state.tempAmount : amount
                 )}
               </Text>
               <CurrencyInput
                 ref={currencyInput => {
                   if (currencyInput) {
-                    this.input = currencyInput.input
+                    this.amountInput = currencyInput.input
                   }
                 }}
                 style={{
@@ -206,11 +261,11 @@ class BudgetListItem extends React.Component<Props, State> {
                 }}
                 value={this.state.tempAmount}
                 onChange={tempAmount => this.setState({ tempAmount })}
-                onSubmit={this.handleSubmitBudget}
+                onSubmit={this.handleSubmitBudgetAmount}
                 onFocus={() => {
                   this.setState({ tempAmount: 0 })
                 }}
-                onBlur={() => this.setState({ isFocused: false })}
+                onBlur={() => this.setState({ isAmountFocused: false })}
                 blurOnSubmit={false}
               />
             </TouchableOpacity>
@@ -245,7 +300,6 @@ class BudgetListItem extends React.Component<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 10,
     height: 50,
     flexDirection: 'row',
     borderBottomColor: COLORS.GRAY,
@@ -254,11 +308,13 @@ const styles = StyleSheet.create({
   nameContainer: {
     flex: 3,
     justifyContent: 'center',
+    paddingLeft: 5,
   },
   numberContainer: {
     flex: 2,
     alignItems: 'flex-end',
     justifyContent: 'center',
+    paddingRight: 5,
   },
   text: {
     color: COLORS.BLACK,
