@@ -1,15 +1,14 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { COLORS, FONT_SIZES, toCurrency } from '../../../utils'
-import { AccountsContext, withAccounts } from '../../../context'
 
 type Props = {
-  accountsContext?: AccountsContext
+  netWorth: number
+  totalAssets: number
+  totalLiabilities: number
 }
 
-const AccountsHeader = ({
-  accountsContext: { netWorth, totalAssets, totalDebts },
-}: Props) => {
+const AccountsHeader = ({ netWorth, totalAssets, totalLiabilities }: Props) => {
   return (
     <View style={styles.container}>
       <View style={[styles.textContainer, { backgroundColor: COLORS.BLUE }]}>
@@ -40,9 +39,9 @@ const AccountsHeader = ({
             },
           ]}
         >
-          <Text style={styles.text}>Debts</Text>
+          <Text style={styles.text}>Liabilities</Text>
           <Text style={[styles.text, { fontWeight: 'bold' }]}>
-            {toCurrency(totalDebts)}
+            {toCurrency(totalLiabilities)}
           </Text>
         </View>
       </View>
@@ -72,4 +71,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default withAccounts(AccountsHeader)
+export default AccountsHeader

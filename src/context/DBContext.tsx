@@ -2,6 +2,7 @@ import React from 'react'
 import { createConnection } from 'typeorm/browser'
 import { Loader } from '../components'
 import { Account, AccountTransaction, Budget } from '../entities'
+import { BudgetTransaction } from '../entities/BudgetTransaction'
 
 type Props = {}
 
@@ -22,9 +23,10 @@ export class DBProvider extends React.Component<Props, State> {
     try {
       await createConnection({
         type: 'react-native',
-        database: 'pabudget5',
+        database: 'pabudget17',
         location: 'default',
-        entities: [Budget, Account, AccountTransaction],
+        logging: ['query', 'warn', 'error'],
+        entities: [Budget, Account, AccountTransaction, BudgetTransaction],
         synchronize: true,
       })
     } catch (err) {

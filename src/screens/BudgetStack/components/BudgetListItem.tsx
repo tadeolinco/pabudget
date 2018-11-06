@@ -8,12 +8,18 @@ import {
   Animated,
   TouchableHighlight,
   Keyboard,
+  Dimensions,
+  Alert,
 } from 'react-native'
 import { Budget } from '../../../entities'
 import { COLORS, FONT_SIZES, toCurrency } from '../../../utils'
 import { CurrencyInput } from '../../../components'
 import Interactable from 'react-native-interactable'
-import { AnimatedValue } from 'react-navigation'
+import {
+  AnimatedValue,
+  withNavigation,
+  NavigationScreenProp,
+} from 'react-navigation'
 import Color from 'color'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 
@@ -21,7 +27,10 @@ type Props = {
   budget: Budget
   available: number
   updateBudget: (newBudget: Budget) => void
+  deleteBudget: (targetBudget: Budget) => void
   sortHandlers?: any
+  navigation: NavigationScreenProp<any>
+  showTransactions: (budget: Budget) => void
 }
 
 type State = {
@@ -31,6 +40,8 @@ type State = {
   isNameFocused: boolean
   buttonSize: number
 }
+
+const deviceWidth = Dimensions.get('screen').width
 
 class BudgetListItem extends React.Component<Props, State> {
   private amountInput!: TextInput
@@ -67,6 +78,12 @@ class BudgetListItem extends React.Component<Props, State> {
     })
   }
 
+  handleAddBudgetTransaction = () => {
+    this.props.navigation.navigate('Transaction', {
+      toBudget: this.props.budget,
+    })
+  }
+
   handleChangeName = tempName => {
     this.setState({ tempName })
   }
@@ -76,7 +93,6 @@ class BudgetListItem extends React.Component<Props, State> {
       ...this.props.budget,
       amount: this.state.tempAmount,
     })
-    Keyboard.dismiss()
     this.setState({ isAmountFocused: false, tempAmount: 0 })
   }
 
@@ -92,10 +108,34 @@ class BudgetListItem extends React.Component<Props, State> {
     this.setState({ isNameFocused: false, tempName: this.props.budget.name })
   }
 
+  handleDeleteBudget = async () => {
+    Alert.alert(
+      `Deleting ${this.props.budget.name}`,
+      'Are you sure you want delete?',
+      [
+        {
+          text: 'No',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: async () => {
+            await this.props.deleteBudget(this.props.budget)
+          },
+        },
+      ]
+    )
+  }
+
+  handleShowTransactions = () => {
+    this.props.showTransactions(this.props.budget)
+  }
+
   renderSlider = () => {
     const xInterpolate = this._deltaX.interpolate({
       inputRange: [0, this.snapPoint],
-      outputRange: [-this.snapPoint, 0],
+      outputRange: [deviceWidth, deviceWidth + this.snapPoint],
     })
     return (
       <View
@@ -106,6 +146,32 @@ class BudgetListItem extends React.Component<Props, State> {
           flexDirection: 'row',
         }}
       >
+        <Animated.View
+          style={[
+            {
+              height: this.state.buttonSize,
+              width: this.state.buttonSize,
+            },
+            { transform: [{ translateX: xInterpolate }] },
+          ]}
+        >
+          <TouchableHighlight
+            underlayColor={Color(COLORS.RED).darken(0.25)}
+            style={{
+              height: this.state.buttonSize,
+              width: this.state.buttonSize,
+              backgroundColor: COLORS.RED,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onPress={this.handleDeleteBudget}
+          >
+            <Icon
+              name="trash-alt"
+              style={{ fontSize: FONT_SIZES.REGULAR, color: 'white' }}
+            />
+          </TouchableHighlight>
+        </Animated.View>
         <Animated.View
           style={[
             {
@@ -132,32 +198,6 @@ class BudgetListItem extends React.Component<Props, State> {
             />
           </TouchableHighlight>
         </Animated.View>
-        <Animated.View
-          style={[
-            {
-              height: this.state.buttonSize,
-              width: this.state.buttonSize,
-            },
-            { transform: [{ translateX: xInterpolate }] },
-          ]}
-        >
-          <TouchableHighlight
-            underlayColor={Color(COLORS.RED).darken(0.25)}
-            style={{
-              height: this.state.buttonSize,
-              width: this.state.buttonSize,
-              backgroundColor: COLORS.RED,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-            onPress={() => {}}
-          >
-            <Icon
-              name="trash-alt"
-              style={{ fontSize: FONT_SIZES.REGULAR, color: 'white' }}
-            />
-          </TouchableHighlight>
-        </Animated.View>
       </View>
     )
   }
@@ -173,15 +213,7 @@ class BudgetListItem extends React.Component<Props, State> {
         {this.renderSlider()}
         <Interactable.View
           horizontalOnly
-          snapPoints={[{ x: 0 }, { x: this.snapPoint }]}
-          springPoints={[
-            {
-              x: 0,
-              tension: 6000,
-              damping: 0.5,
-              influenceArea: { right: 0 },
-            },
-          ]}
+          snapPoints={[{ x: 0 }, { x: -this.snapPoint }]}
           animatedValueX={this._deltaX}
         >
           <View
@@ -196,8 +228,10 @@ class BudgetListItem extends React.Component<Props, State> {
             }}
           >
             <TouchableOpacity
+              activeOpacity={0.6}
               style={styles.nameContainer}
               onPress={this.handlePressName}
+              onLongPress={this.handleShowTransactions}
             >
               <TextInput
                 editable={this.state.isNameFocused}
@@ -217,11 +251,12 @@ class BudgetListItem extends React.Component<Props, State> {
                   })
                 }
               />
-              {/* <Text style={[styles.text]}>{name}</Text> */}
             </TouchableOpacity>
             <TouchableOpacity
+              activeOpacity={0.6}
               style={styles.numberContainer}
               onPress={this.handlePressBudget}
+              onLongPress={this.handleShowTransactions}
             >
               <Text
                 style={[
@@ -269,9 +304,13 @@ class BudgetListItem extends React.Component<Props, State> {
                 blurOnSubmit={false}
               />
             </TouchableOpacity>
-            <View style={[styles.numberContainer]}>
+            <TouchableOpacity
+              activeOpacity={0.6}
+              style={[styles.numberContainer]}
+              onPress={this.handleAddBudgetTransaction}
+              onLongPress={this.handleShowTransactions}
+            >
               <Text
-                adjustsFontSizeToFit
                 style={[
                   styles.text,
                   {
@@ -290,7 +329,7 @@ class BudgetListItem extends React.Component<Props, State> {
               >
                 {toCurrency(available)}
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
         </Interactable.View>
       </View>
@@ -329,4 +368,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default BudgetListItem
+export default withNavigation(BudgetListItem)

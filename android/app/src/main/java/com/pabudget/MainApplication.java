@@ -3,8 +3,9 @@ package com.pabudget;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.wix.interactable.Interactable;
 import com.oblador.vectoricons.VectorIconsPackage;
+import com.wix.interactable.Interactable;
+import org.pgsqlite.SQLitePluginPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -12,8 +13,6 @@ import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
 import java.util.List;
-
-import org.pgsqlite.SQLitePluginPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -26,10 +25,10 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-        new SQLitePluginPackage(),
           new MainReactPackage(),
+            new VectorIconsPackage(),
             new Interactable(),
-            new VectorIconsPackage()
+            new SQLitePluginPackage()
       );
     }
 

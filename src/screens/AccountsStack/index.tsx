@@ -1,14 +1,12 @@
 import { createStackNavigator } from 'react-navigation'
 import { transitionConfig } from '../../utils'
 import AccountsScreen from './AccountsScreen'
-import NewAccountScreen from './NewAccountScreen'
-import AccountDetailsScreen from './AccountDetailsScreen'
+import AccountTransactionsScreen from './AccountTransactionsScreen'
 
 const AccountsStack = createStackNavigator(
   {
     Accounts: AccountsScreen,
-    NewAccount: NewAccountScreen,
-    AccountDetails: AccountDetailsScreen,
+    AccountDetails: AccountTransactionsScreen,
   },
   { headerMode: 'none', transitionConfig, initialRouteName: 'Accounts' }
 )

@@ -20,7 +20,7 @@ export interface BudgetContext extends State {
   fetchBudgets: () => void
   updateBudget: (newBudget: Budget) => void
   addBudget: (name: string, amount: number) => void
-  deleteBudgets: (ids: number[]) => void
+  deleteBudget: (targetBudget: Budget) => void
   arrangeBudgets: (e: { to: number; from: number }) => void
 }
 
@@ -55,7 +55,7 @@ export class BudgetProvider extends React.Component<Props, State> {
     for (const budget of this.state.budgets) {
       totalBudget += budget.amount
       availablePerBudget.set(budget.id, budget.amount)
-      for (const transaction of budget.transactions) {
+      for (const transaction of budget.transactionsFromAccounts) {
         availablePerBudget.set(
           budget.id,
           availablePerBudget.get(budget.id) - transaction.amount
@@ -74,13 +74,20 @@ export class BudgetProvider extends React.Component<Props, State> {
   fetchBudgets = async () => {
     this.setState({ isFetchingBudgets: true })
     try {
-      const budgets = await getRepository(Budget).find({
-        relations: ['transactions'],
-        order: {
-          order: 'ASC',
-        },
-      })
-      console.log(budgets)
+      const budgets = await getRepository(Budget)
+        .createQueryBuilder('budget')
+        .leftJoinAndSelect(
+          'budget.transactionsFromAccounts',
+          'transactionsFromAccounts',
+          'transactionsFromAccounts.active = :active',
+          { active: true }
+        )
+        .leftJoinAndSelect(
+          'transactionsFromAccounts.fromAccount',
+          'fromAccount'
+        )
+        .orderBy('budget.order')
+        .getMany()
       this.setState({ budgets })
     } catch (err) {
       console.warn(err)
@@ -125,32 +132,21 @@ export class BudgetProvider extends React.Component<Props, State> {
     }
   }
 
-  deleteBudgets = async (ids: number[]) => {
+  deleteBudget = async (targetBudget: Budget) => {
     this.setState({ isDeletingBudget: true })
     try {
-      const minOrder = (await getRepository(Budget).findByIds(ids)).reduce(
-        (acc, curr) => {
-          if (curr.order < acc) {
-            return curr.order
-          }
-          return acc
-        },
-        Infinity
-      )
+      const budgetRepository = getRepository(Budget)
 
       const budgets = this.state.budgets
-        .filter(budget => !ids.includes(budget.id))
+        .filter(budget => budget.id !== targetBudget.id)
         .map(budget => {
-          if (budget.order > minOrder) budget.order = budget.order - ids.length
+          if (budget.order > targetBudget.order) budget.order--
           return budget
         })
 
-      await Promise.all(
-        this.state.budgets.map(budget => getRepository(Budget).save(budget))
-      )
-
-      await getRepository(Budget).delete(ids)
-      this.setState({ budgets })
+      await Promise.all(budgets.map(budget => budgetRepository.save(budget)))
+      await budgetRepository.delete(targetBudget)
+      await this.fetchBudgets()
     } catch (err) {
       console.warn(err)
     } finally {
@@ -161,7 +157,8 @@ export class BudgetProvider extends React.Component<Props, State> {
   arrangeBudgets = async (e: { to: number; from: number }) => {
     const { to, from } = e
 
-    const newBudgets = [...this.state.budgets]
+    const newBudgets = this.state.budgets.slice(0)
+
     newBudgets[from].order = to
     if (to < from) {
       for (let index = to; index < from; index++) {
@@ -184,7 +181,7 @@ export class BudgetProvider extends React.Component<Props, State> {
       fetchBudgets: this.fetchBudgets,
       updateBudget: this.updateBudget,
       addBudget: this.addBudget,
-      deleteBudgets: this.deleteBudgets,
+      deleteBudget: this.deleteBudget,
       arrangeBudgets: this.arrangeBudgets,
     }
 

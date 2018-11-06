@@ -1,5 +1,11 @@
 import React, { Fragment, Component } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  FlatList,
+} from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
 import {
@@ -11,11 +17,11 @@ import {
   CurrencyInput,
 } from '../../components'
 import { BudgetContext, withBudget } from '../../context'
-import { COLORS, FONT_SIZES } from '../../utils'
+import { COLORS, FONT_SIZES, toCurrency } from '../../utils'
 import MainTabs from '../MainTabs'
 import { BudgetHeader, BudgetListItem } from './components'
 import SortableListView from 'react-native-sortable-listview'
-import { Budget } from '../../entities'
+import { Budget, BudgetTransaction } from '../../entities'
 
 type Props = {
   budgetContext: BudgetContext
@@ -26,6 +32,7 @@ type State = {
   isAddModalVisible: boolean
   newBudgetName: string
   newBudgetAmount: number
+  selectedBudget: Budget
 }
 
 class BudgetScreen extends Component<Props, State> {
@@ -33,14 +40,17 @@ class BudgetScreen extends Component<Props, State> {
     isAddModalVisible: false,
     newBudgetName: '',
     newBudgetAmount: 0,
+    selectedBudget: null,
   }
 
   handleAddBudget = async () => {
     this.setState({ isAddModalVisible: false })
-    await this.props.budgetContext.addBudget(
-      this.state.newBudgetName.trim(),
-      this.state.newBudgetAmount
-    )
+    requestAnimationFrame(async () => {
+      await this.props.budgetContext.addBudget(
+        this.state.newBudgetName.trim(),
+        this.state.newBudgetAmount
+      )
+    })
   }
 
   handleOpenAddModal = () => {
@@ -49,6 +59,43 @@ class BudgetScreen extends Component<Props, State> {
       newBudgetName: '',
       newBudgetAmount: 0,
     })
+  }
+
+  handleShowTransactions = (budget: Budget) => {
+    this.setState({ selectedBudget: budget })
+  }
+
+  renderTransaction = ({
+    item,
+    index,
+  }: {
+    item: BudgetTransaction
+    index: number
+  }) => {
+    return (
+      <View
+        style={[
+          styles.row,
+          {
+            borderBottomWidth:
+              index ===
+              this.state.selectedBudget.transactionsFromAccounts.length - 1
+                ? 0
+                : 1,
+          },
+        ]}
+      >
+        <View style={{ flex: 1 }}>
+          <Text style={styles.text}>{item.fromAccount.name}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.text]}>{toCurrency(item.amount)}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.text}>{item.note || '—'}</Text>
+        </View>
+      </View>
+    )
   }
 
   render() {
@@ -80,6 +127,7 @@ class BudgetScreen extends Component<Props, State> {
           title="Budget"
           right={
             <TouchableOpacity
+              activeOpacity={0.6}
               onPress={this.handleOpenAddModal}
               style={{
                 padding: 10,
@@ -104,61 +152,28 @@ class BudgetScreen extends Component<Props, State> {
           </View>
         ) : (
           <Fragment>
-            <View
-              style={{
-                flexDirection: 'row',
-                backgroundColor: 'white',
-                borderBottomWidth: 1,
-                borderColor: COLORS.GRAY,
-                paddingVertical: 10,
-              }}
-            >
+            <View style={styles.row}>
               <View
-                style={{
-                  paddingLeft: 5,
-                  flex: 3,
-                }}
+                style={{ paddingLeft: 5, flex: 3, justifyContent: 'center' }}
               >
-                <Text
-                  style={{
-                    fontSize: FONT_SIZES.TINY,
-                    fontWeight: 'bold',
-                    color: COLORS.BLACK,
-                  }}
-                >
-                  Name
-                </Text>
+                <Text style={[styles.text, { fontWeight: 'bold' }]}>Name</Text>
               </View>
-              <View
-                style={{
-                  paddingRight: 5,
-                  flex: 2,
-                }}
-              >
+              <View style={styles.cell}>
                 <Text
-                  style={{
-                    fontSize: FONT_SIZES.TINY,
-                    fontWeight: 'bold',
-                    color: COLORS.BLACK,
-                    textAlign: 'right',
-                  }}
+                  style={[
+                    styles.text,
+                    { textAlign: 'right', fontWeight: 'bold' },
+                  ]}
                 >
                   Budget
                 </Text>
               </View>
-              <View
-                style={{
-                  paddingRight: 5,
-                  flex: 2,
-                }}
-              >
+              <View style={styles.cell}>
                 <Text
-                  style={{
-                    fontSize: FONT_SIZES.TINY,
-                    fontWeight: 'bold',
-                    color: COLORS.BLACK,
-                    textAlign: 'right',
-                  }}
+                  style={[
+                    styles.text,
+                    { textAlign: 'right', fontWeight: 'bold' },
+                  ]}
                 >
                   Available
                 </Text>
@@ -166,7 +181,7 @@ class BudgetScreen extends Component<Props, State> {
             </View>
             <SortableListView
               moveOnPressIn
-              activeOpacity={0.75}
+              activeOpacity={0.6}
               style={{ backgroundColor: 'white' }}
               data={sortedBudgets}
               order={order}
@@ -176,6 +191,8 @@ class BudgetScreen extends Component<Props, State> {
                   budget={budget}
                   available={availablePerBudget.get(budget.id)}
                   updateBudget={this.props.budgetContext.updateBudget}
+                  deleteBudget={this.props.budgetContext.deleteBudget}
+                  showTransactions={this.handleShowTransactions}
                 />
               )}
               rowHasChanged={a => {
@@ -187,6 +204,50 @@ class BudgetScreen extends Component<Props, State> {
           </Fragment>
         )}
         <MainTabs />
+        <Modal
+          dimmerClose
+          isVisibile={!!this.state.selectedBudget}
+          title={
+            this.state.selectedBudget
+              ? `${this.state.selectedBudget.name} transactions`
+              : ''
+          }
+          onClose={() => {
+            this.setState({ selectedBudget: null })
+          }}
+        >
+          {this.state.selectedBudget &&
+          !!this.state.selectedBudget.transactionsFromAccounts.length ? (
+            <Fragment>
+              <View style={styles.row}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.text, { fontWeight: 'bold' }]}>
+                    Account
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.text, { fontWeight: 'bold' }]}>
+                    Amount
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.text, { fontWeight: 'bold' }]}>
+                    Note
+                  </Text>
+                </View>
+              </View>
+              <FlatList
+                keyExtractor={item => String(item.id)}
+                data={this.state.selectedBudget.transactionsFromAccounts}
+                renderItem={this.renderTransaction}
+              />
+            </Fragment>
+          ) : (
+            <View>
+              <Text style={styles.text}>No Transactions</Text>
+            </View>
+          )}
+        </Modal>
         <Modal
           isVisibile={this.state.isAddModalVisible}
           title="Add Budget"
@@ -220,6 +281,10 @@ class BudgetScreen extends Component<Props, State> {
           active={this.props.budgetContext.isAddingBudget}
           text="Creating budget..."
         />
+        <Loader
+          active={this.props.budgetContext.isDeletingBudget}
+          text="Deleting budget..."
+        />
       </Fragment>
     )
   }
@@ -239,6 +304,20 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.TINY,
     marginBottom: 10,
   },
+  row: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderColor: COLORS.GRAY,
+    height: 50,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+  },
+  text: {
+    fontSize: FONT_SIZES.TINY,
+    color: COLORS.BLACK,
+  },
+  cell: { paddingRight: 5, flex: 2, justifyContent: 'center' },
 })
 
 export default withBudget(BudgetScreen)

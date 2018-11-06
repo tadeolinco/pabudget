@@ -64,13 +64,14 @@ class Picker extends Component<Props, State> {
         key={index}
         style={[styles.itemContainer, !isLast && styles.lastItemContainer]}
       >
-        <TouchableOpacity onPress={() => this.handleSelectItem(item.value)}>
+        <TouchableOpacity
+          activeOpacity={0.6}
+          onPress={() => this.handleSelectItem(item.value)}
+        >
           <Text style={styles.text}>
-            {item.label
-              ? item.label
-              : this.props.renderItem
-                ? this.props.renderItem(item)
-                : item.value}
+            {this.props.renderItem
+              ? this.props.renderItem(item)
+              : item.label || item.value}
           </Text>
         </TouchableOpacity>
       </View>
@@ -87,6 +88,7 @@ class Picker extends Component<Props, State> {
       <Fragment>
         <View style={this.props.containerStyle}>
           <TouchableOpacity
+            activeOpacity={0.6}
             onPress={this.toggleActive}
             style={[styles.touchableValue, this.props.touchableStyle]}
           >

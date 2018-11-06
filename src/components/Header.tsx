@@ -19,6 +19,7 @@ const Header = ({ title, right, hasBack = false, navigation }: Props) => {
       <View style={styles.container}>
         {hasBack && (
           <TouchableOpacity
+            activeOpacity={0.6}
             onPress={() => {
               navigation.goBack()
             }}

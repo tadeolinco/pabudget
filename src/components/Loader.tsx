@@ -1,4 +1,4 @@
-import React, { AnimationEventHandler } from 'react'
+import React from 'react'
 import {
   ActivityIndicator,
   Animated,

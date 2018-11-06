@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm/browser'
 import { AccountTransaction } from './AccountTransaction'
+import { BudgetTransaction } from './BudgetTransaction'
 
 @Entity('account')
 export class Account {
@@ -14,9 +15,21 @@ export class Account {
   @Column()
   name: string
 
-  @OneToMany(type => AccountTransaction, transaction => transaction.fromAccount)
-  fromTransactions: AccountTransaction[]
+  @Column()
+  order: number
 
-  @OneToMany(type => AccountTransaction, transaction => transaction.toAccount)
-  toTransactions: AccountTransaction[]
+  @OneToMany(
+    type => AccountTransaction,
+    accountTransaction => accountTransaction.toAccount
+  )
+  transactionsFromAccounts: AccountTransaction[]
+
+  @OneToMany(
+    type => AccountTransaction,
+    accountTransaction => accountTransaction.fromAccount
+  )
+  transactionsToAccounts: AccountTransaction[]
+
+  @OneToMany(type => BudgetTransaction, transaction => transaction.fromAccount)
+  transactionsToBudgets: BudgetTransaction[]
 }

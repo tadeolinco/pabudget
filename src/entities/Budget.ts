@@ -5,7 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm/browser'
-import { AccountTransaction } from './AccountTransaction'
+import { BudgetTransaction } from './BudgetTransaction'
 
 @Entity('budget')
 export class Budget {
@@ -22,8 +22,8 @@ export class Budget {
   amount: number
 
   @OneToMany(
-    type => AccountTransaction,
-    accountTransaction => accountTransaction.toItem
+    type => BudgetTransaction,
+    budgetTransaction => budgetTransaction.toBudget
   )
-  transactions: AccountTransaction[]
+  transactionsFromAccounts: BudgetTransaction[]
 }

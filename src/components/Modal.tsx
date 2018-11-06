@@ -8,19 +8,33 @@ type Props = {
   title: string
   isVisibile: boolean
   onClose?: () => void
-  children: JSX.Element[]
+  children: JSX.Element[] | JSX.Element
+  dimmerClose?: boolean
 }
 
-const Modal = ({ isVisibile, onClose, title, children }: Props) => {
+const Modal = ({
+  isVisibile,
+  onClose,
+  title,
+  children,
+  dimmerClose = false,
+}: Props) => {
   return (
     <NativeModal
+      onBackdropPress={() => {
+        if (dimmerClose) onClose()
+      }}
       isVisible={isVisibile}
       animationIn="fadeIn"
       animationOut="fadeOut"
     >
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity onPress={onClose} style={{ padding: 10 }}>
+        <TouchableOpacity
+          activeOpacity={0.6}
+          onPress={onClose}
+          style={{ padding: 10 }}
+        >
           <Icon name="close" style={styles.closeIcon} />
         </TouchableOpacity>
       </View>

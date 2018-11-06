@@ -3,13 +3,13 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Transaction,
   CreateDateColumn,
 } from 'typeorm/browser'
 import { Account } from './Account'
+import { Budget } from './Budget'
 
-@Entity('accountTransaction')
-export class AccountTransaction {
+@Entity('budgetTransaction')
+export class BudgetTransaction {
   @PrimaryGeneratedColumn()
   id: number
 
@@ -25,13 +25,13 @@ export class AccountTransaction {
   @CreateDateColumn()
   createdAt: Date
 
-  @ManyToOne(type => Account, account => account.transactionsToAccounts, {
+  @ManyToOne(type => Account, account => account.transactionsToBudgets, {
     onDelete: 'SET NULL',
   })
   fromAccount: Account
 
-  @ManyToOne(type => Account, account => account.transactionsFromAccounts, {
+  @ManyToOne(type => Budget, budget => budget.transactionsFromAccounts, {
     onDelete: 'SET NULL',
   })
-  toAccount: Account
+  toBudget: Budget
 }

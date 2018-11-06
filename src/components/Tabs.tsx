@@ -21,6 +21,7 @@ const Tabs = ({ items }: Props) => {
       {items.map((item, index) => (
         <View style={[styles.tabItem]} key={index}>
           <TouchableOpacity
+            activeOpacity={0.6}
             disabled={item.disabled}
             onPress={item.onPress}
             style={styles.touchable}

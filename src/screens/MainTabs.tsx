@@ -26,7 +26,7 @@ const MainTabs = ({ navigation }: Props) => {
     {
       text: 'Settings',
       icon: 'sliders-h',
-      onPress: () => navigation.navigate('Budget'),
+      onPress: () => navigation.navigate('Settings'),
     },
   ]
   return <Tabs items={tabItems} />

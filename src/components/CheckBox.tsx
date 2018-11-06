@@ -12,7 +12,11 @@ type Props = {
 const CheckBox = ({ value, onValueChange, style = {} }: Props) => {
   return (
     <View style={[styles.container, style]}>
-      <TouchableOpacity onPress={onValueChange} style={styles.touchable}>
+      <TouchableOpacity
+        activeOpacity={0.6}
+        onPress={onValueChange}
+        style={styles.touchable}
+      >
         {value && (
           <Icon name="check" color={COLORS.BLACK} size={FONT_SIZES.TINY} />
         )}

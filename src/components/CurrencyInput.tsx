@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, TextInput, TextStyle, TextInputProps } from 'react-native'
+import { StyleSheet, TextInput, TextStyle, Keyboard } from 'react-native'
 import { toCurrency, COLORS, FONT_SIZES } from '../utils'
 
 type Props = {
@@ -11,6 +11,7 @@ type Props = {
   style?: TextStyle
   useDefaultStyles?: boolean
   blurOnSubmit?: boolean
+  allowNegation?: boolean
 }
 
 type State = {
@@ -44,6 +45,7 @@ class CurrencyInput extends Component<Props, State> {
       )
         return
       if (lastCharacter === '-') {
+        if (!this.props.allowNegation) return
         // handle negation
         const newValue = String(-+this.state.value)
         const selection = toCurrency(+newValue).length
@@ -98,7 +100,12 @@ class CurrencyInput extends Component<Props, State> {
         onChangeText={this.handleChangeValue}
         keyboardType="number-pad"
         selection={this.state.selection}
-        onSubmitEditing={this.props.onSubmit}
+        onSubmitEditing={() => {
+          if (this.props.onSubmit) {
+            this.props.onSubmit(+this.state.value)
+          }
+          Keyboard.dismiss()
+        }}
         onBlur={this.props.onBlur}
         blurOnSubmit={this.props.blurOnSubmit || false}
         onFocus={() => {

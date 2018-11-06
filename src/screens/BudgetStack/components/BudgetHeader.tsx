@@ -16,7 +16,19 @@ const BudgetHeader = ({ totalBudget, totalAvailable }: Props) => {
           {toCurrency(totalBudget)}
         </Text>
       </View>
-      <View style={styles.totalAvailableContainer}>
+      <View
+        style={[
+          styles.totalAvailableContainer,
+          {
+            backgroundColor:
+              totalAvailable > 0
+                ? COLORS.GREEN
+                : totalAvailable < 0
+                  ? COLORS.RED
+                  : COLORS.GRAY,
+          },
+        ]}
+      >
         <Text style={styles.text}>Total Available</Text>
         <Text style={[styles.text, { fontWeight: 'bold' }]}>
           {toCurrency(totalAvailable)}
@@ -39,7 +51,6 @@ const styles = StyleSheet.create({
   totalAvailableContainer: {
     flex: 1,
     padding: 10,
-    backgroundColor: COLORS.GREEN,
     justifyContent: 'center',
   },
   text: {
