@@ -6,7 +6,7 @@ import AccountTransactionsScreen from './AccountTransactionsScreen'
 const AccountsStack = createStackNavigator(
   {
     Accounts: AccountsScreen,
-    AccountDetails: AccountTransactionsScreen,
+    AccountTransactions: AccountTransactionsScreen,
   },
   { headerMode: 'none', transitionConfig, initialRouteName: 'Accounts' }
 )

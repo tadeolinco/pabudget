@@ -3,35 +3,36 @@ import { StyleSheet, Text, View } from 'react-native'
 import { COLORS, FONT_SIZES, toCurrency } from '../../../utils'
 
 type Props = {
-  totalBudget: number
-  totalAvailable: number
+  budget: number
+  available: number
+  total?: boolean
 }
 
-const BudgetHeader = ({ totalBudget, totalAvailable }: Props) => {
+const BudgetHeader = ({ budget, available, total = true }: Props) => {
   return (
     <View style={styles.container}>
-      <View style={styles.totalBudgetContainer}>
-        <Text style={styles.text}>Total Budgeted</Text>
+      <View style={styles.budgetContainer}>
+        <Text style={styles.text}>{total && 'Total'} Budgeted</Text>
         <Text style={[styles.text, { fontWeight: 'bold' }]}>
-          {toCurrency(totalBudget)}
+          {toCurrency(budget)}
         </Text>
       </View>
       <View
         style={[
-          styles.totalAvailableContainer,
+          styles.availableContainer,
           {
             backgroundColor:
-              totalAvailable > 0
+              available > 0
                 ? COLORS.GREEN
-                : totalAvailable < 0
+                : available < 0
                   ? COLORS.RED
                   : COLORS.GRAY,
           },
         ]}
       >
-        <Text style={styles.text}>Total Available</Text>
+        <Text style={styles.text}>{total && 'Total'} Available</Text>
         <Text style={[styles.text, { fontWeight: 'bold' }]}>
-          {toCurrency(totalAvailable)}
+          {toCurrency(available)}
         </Text>
       </View>
     </View>
@@ -42,13 +43,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
   },
-  totalBudgetContainer: {
+  budgetContainer: {
     flex: 1,
     padding: 10,
     backgroundColor: COLORS.BLUE,
     justifyContent: 'center',
   },
-  totalAvailableContainer: {
+  availableContainer: {
     flex: 1,
     padding: 10,
     justifyContent: 'center',

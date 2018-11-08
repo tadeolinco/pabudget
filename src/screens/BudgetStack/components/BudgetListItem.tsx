@@ -48,6 +48,7 @@ class BudgetListItem extends React.Component<Props, State> {
   private nameInput!: TextInput
   private _deltaX: AnimatedValue
   private snapPoint = 100
+  private interactableView: any
 
   constructor(props: Props) {
     super(props)
@@ -129,6 +130,7 @@ class BudgetListItem extends React.Component<Props, State> {
   }
 
   handleShowTransactions = () => {
+    this.interactableView.snapTo({ index: 0 })
     this.props.showTransactions(this.props.budget)
   }
 
@@ -182,6 +184,32 @@ class BudgetListItem extends React.Component<Props, State> {
           ]}
         >
           <TouchableHighlight
+            underlayColor={Color(COLORS.BLUE).darken(0.25)}
+            style={{
+              height: this.state.buttonSize,
+              width: this.state.buttonSize,
+              backgroundColor: COLORS.BLUE,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onPress={this.handleShowTransactions}
+          >
+            <Icon
+              name="book"
+              style={{ fontSize: FONT_SIZES.REGULAR, color: 'white' }}
+            />
+          </TouchableHighlight>
+        </Animated.View>
+        <Animated.View
+          style={[
+            {
+              height: this.state.buttonSize,
+              width: this.state.buttonSize,
+            },
+            { transform: [{ translateX: xInterpolate }] },
+          ]}
+        >
+          <TouchableHighlight
             underlayColor={Color(COLORS.DARK_GRAY).darken(0.25)}
             style={{
               height: this.state.buttonSize,
@@ -215,6 +243,7 @@ class BudgetListItem extends React.Component<Props, State> {
           horizontalOnly
           snapPoints={[{ x: 0 }, { x: -this.snapPoint }]}
           animatedValueX={this._deltaX}
+          ref={ref => (this.interactableView = ref)}
         >
           <View
             style={[styles.container]}
@@ -224,14 +253,13 @@ class BudgetListItem extends React.Component<Props, State> {
               },
             }) => {
               this.setState({ buttonSize: height })
-              this.snapPoint = height * 2
+              this.snapPoint = height * 3
             }}
           >
             <TouchableOpacity
               activeOpacity={0.6}
               style={styles.nameContainer}
               onPress={this.handlePressName}
-              onLongPress={this.handleShowTransactions}
             >
               <TextInput
                 editable={this.state.isNameFocused}
@@ -256,7 +284,6 @@ class BudgetListItem extends React.Component<Props, State> {
               activeOpacity={0.6}
               style={styles.numberContainer}
               onPress={this.handlePressBudget}
-              onLongPress={this.handleShowTransactions}
             >
               <Text
                 style={[
@@ -266,13 +293,13 @@ class BudgetListItem extends React.Component<Props, State> {
                       ? this.state.tempAmount === 0
                         ? COLORS.DARK_GRAY
                         : this.state.tempAmount > 0
-                          ? COLORS.BLUE
-                          : COLORS.RED
+                        ? COLORS.BLUE
+                        : COLORS.RED
                       : amount === 0
-                        ? COLORS.DARK_GRAY
-                        : amount > 0
-                          ? COLORS.BLUE
-                          : COLORS.RED,
+                      ? COLORS.DARK_GRAY
+                      : amount > 0
+                      ? COLORS.BLUE
+                      : COLORS.RED,
                     zIndex: 1,
                   },
                 ]}
@@ -300,7 +327,9 @@ class BudgetListItem extends React.Component<Props, State> {
                 onFocus={() => {
                   this.setState({ tempAmount: 0 })
                 }}
-                onBlur={() => this.setState({ isAmountFocused: false })}
+                onBlur={() => {
+                  this.setState({ isAmountFocused: false })
+                }}
                 blurOnSubmit={false}
               />
             </TouchableOpacity>
@@ -308,7 +337,6 @@ class BudgetListItem extends React.Component<Props, State> {
               activeOpacity={0.6}
               style={[styles.numberContainer]}
               onPress={this.handleAddBudgetTransaction}
-              onLongPress={this.handleShowTransactions}
             >
               <Text
                 style={[
@@ -319,8 +347,8 @@ class BudgetListItem extends React.Component<Props, State> {
                       available === 0
                         ? COLORS.DARK_GRAY
                         : available > 0
-                          ? COLORS.GREEN
-                          : COLORS.RED,
+                        ? COLORS.GREEN
+                        : COLORS.RED,
                     borderRadius: 20,
                     paddingHorizontal: 8,
                     paddingVertical: 2,
@@ -343,22 +371,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomColor: COLORS.GRAY,
     borderBottomWidth: 1,
+    paddingHorizontal: 10,
   },
   nameContainer: {
     flex: 3,
     justifyContent: 'center',
-    paddingLeft: 5,
   },
   numberContainer: {
     flex: 2,
     alignItems: 'flex-end',
     justifyContent: 'center',
-    paddingRight: 5,
   },
   text: {
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.TINY,
     fontWeight: 'normal',
+    padding: 0,
   },
   hide: {
     position: 'absolute',

@@ -1,60 +1,40 @@
 import React, { Component, Fragment } from 'react'
 import { StyleSheet, View, Text, FlatList } from 'react-native'
 import { Header } from '../../components'
-import { AccountsContext, withAccounts } from '../../context'
+import { withBudget, BudgetContext } from '../../context'
 import { NavigationScreenProp } from 'react-navigation'
-import { Account } from '../../entities'
+import { Account, Budget } from '../../entities'
 import { FONT_SIZES, COLORS, toCurrency } from '../../utils'
-import { AccountsHeader } from './components'
 import { format, isToday } from 'date-fns'
+import { BudgetHeader } from './components'
 
 type Props = {
   navigation: NavigationScreenProp<any>
-  accountsContext: AccountsContext
+  budgetContext: BudgetContext
 }
 
 type State = {
-  account: Account
+  budget: Budget
   transactions: any[]
-  totalAssets: number
-  totalLiabilities: number
 }
 
-class AccountTransactionsScreen extends Component<Props, State> {
+class BudgetTransactionsScreen extends Component<Props, State> {
   state: State = {
-    account: null,
+    budget: null,
     transactions: [],
-    totalAssets: 0,
-    totalLiabilities: 0,
   }
 
   componentDidMount() {
-    const account: Account = this.props.navigation.getParam('account')
+    const budget: Budget = this.props.navigation.getParam('budget')
 
-    const transactions = [
-      ...account.transactionsFromAccounts,
-      ...account.transactionsToAccounts,
-      ...account.transactionsToBudgets,
-    ].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
+    const transactions = budget.transactionsFromAccounts
+      .slice(0)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
 
-    let totalAssets = 0
-    let totalLiabilities = 0
-
-    for (const transaction of transactions) {
-      if (
-        transaction.fromAccount &&
-        transaction.fromAccount.name === account.name
-      ) {
-        totalLiabilities -= transaction.amount
-      } else {
-        totalAssets += transaction.amount
-      }
-    }
-
-    this.setState({ account, transactions, totalAssets, totalLiabilities })
+    this.setState({ budget, transactions })
   }
 
   renderTransaction = ({ item: transaction }) => {
@@ -73,18 +53,7 @@ class AccountTransactionsScreen extends Component<Props, State> {
         </View>
 
         <View style={[styles.cell]}>
-          <Text style={styles.text}>
-            {transaction.fromAccount &&
-            transaction.fromAccount.name === this.state.account.name
-              ? `To ${
-                  transaction.toAccount
-                    ? transaction.toAccount.name
-                    : transaction.toBudget.name
-                }`
-              : transaction.fromAccount
-                ? `From ${transaction.fromAccount.name}`
-                : `To ${this.state.account.name}`}
-          </Text>
+          <Text style={styles.text}>{transaction.fromAccount.name}</Text>
         </View>
 
         <View style={[styles.cell]}>
@@ -99,11 +68,7 @@ class AccountTransactionsScreen extends Component<Props, State> {
               styles.text,
               {
                 color: COLORS.WHITE,
-                backgroundColor:
-                  transaction.fromAccount &&
-                  transaction.fromAccount.name === this.state.account.name
-                    ? COLORS.RED
-                    : COLORS.GREEN,
+                backgroundColor: COLORS.GREEN,
                 borderRadius: 20,
                 paddingHorizontal: 8,
                 paddingVertical: 2,
@@ -118,17 +83,17 @@ class AccountTransactionsScreen extends Component<Props, State> {
   }
 
   render() {
-    if (!this.state.account) return null
+    if (!this.state.budget) return null
 
     return (
       <Fragment>
-        <Header title={`${this.state.account.name} Transactions`} hasBack />
-        <AccountsHeader
-          netWorth={this.props.accountsContext.amountPerAccount.get(
-            this.state.account.id
+        <Header title={`${this.state.budget.name} Transactions`} hasBack />
+        <BudgetHeader
+          total
+          budget={this.state.budget.amount}
+          available={this.props.budgetContext.availablePerBudget.get(
+            this.state.budget.id
           )}
-          totalAssets={this.state.totalAssets}
-          totalLiabilities={this.state.totalLiabilities}
         />
         <View style={styles.row}>
           <View style={[styles.cell, { flex: 2 }]}>
@@ -136,7 +101,7 @@ class AccountTransactionsScreen extends Component<Props, State> {
           </View>
 
           <View style={[styles.cell]}>
-            <Text style={styles.headerText}>From/To</Text>
+            <Text style={styles.headerText}>From</Text>
           </View>
 
           <View style={[styles.cell]}>
@@ -183,4 +148,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default withAccounts(AccountTransactionsScreen)
+export default withBudget(BudgetTransactionsScreen)

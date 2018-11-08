@@ -32,7 +32,6 @@ type State = {
   isAddModalVisible: boolean
   newBudgetName: string
   newBudgetAmount: number
-  selectedBudget: Budget
 }
 
 class BudgetScreen extends Component<Props, State> {
@@ -40,7 +39,6 @@ class BudgetScreen extends Component<Props, State> {
     isAddModalVisible: false,
     newBudgetName: '',
     newBudgetAmount: 0,
-    selectedBudget: null,
   }
 
   handleAddBudget = async () => {
@@ -61,41 +59,8 @@ class BudgetScreen extends Component<Props, State> {
     })
   }
 
-  handleShowTransactions = (budget: Budget) => {
-    this.setState({ selectedBudget: budget })
-  }
-
-  renderTransaction = ({
-    item,
-    index,
-  }: {
-    item: BudgetTransaction
-    index: number
-  }) => {
-    return (
-      <View
-        style={[
-          styles.row,
-          {
-            borderBottomWidth:
-              index ===
-              this.state.selectedBudget.transactionsFromAccounts.length - 1
-                ? 0
-                : 1,
-          },
-        ]}
-      >
-        <View style={{ flex: 1 }}>
-          <Text style={styles.text}>{item.fromAccount.name}</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.text]}>{toCurrency(item.amount)}</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.text}>{item.note || '—'}</Text>
-        </View>
-      </View>
-    )
+  showTransactions = (budget: Budget) => {
+    this.props.navigation.navigate('BudgetTransactions', { budget })
   }
 
   render() {
@@ -137,10 +102,7 @@ class BudgetScreen extends Component<Props, State> {
             </TouchableOpacity>
           }
         />
-        <BudgetHeader
-          totalBudget={totalBudget}
-          totalAvailable={totalAvailable}
-        />
+        <BudgetHeader budget={totalBudget} available={totalAvailable} />
         {budgets.length === 0 ? (
           <View style={[styles.container, styles.center]}>
             <Button
@@ -192,7 +154,7 @@ class BudgetScreen extends Component<Props, State> {
                   available={availablePerBudget.get(budget.id)}
                   updateBudget={this.props.budgetContext.updateBudget}
                   deleteBudget={this.props.budgetContext.deleteBudget}
-                  showTransactions={this.handleShowTransactions}
+                  showTransactions={this.showTransactions}
                 />
               )}
               rowHasChanged={a => {
@@ -204,50 +166,7 @@ class BudgetScreen extends Component<Props, State> {
           </Fragment>
         )}
         <MainTabs />
-        <Modal
-          dimmerClose
-          isVisibile={!!this.state.selectedBudget}
-          title={
-            this.state.selectedBudget
-              ? `${this.state.selectedBudget.name} transactions`
-              : ''
-          }
-          onClose={() => {
-            this.setState({ selectedBudget: null })
-          }}
-        >
-          {this.state.selectedBudget &&
-          !!this.state.selectedBudget.transactionsFromAccounts.length ? (
-            <Fragment>
-              <View style={styles.row}>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.text, { fontWeight: 'bold' }]}>
-                    Account
-                  </Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.text, { fontWeight: 'bold' }]}>
-                    Amount
-                  </Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.text, { fontWeight: 'bold' }]}>
-                    Note
-                  </Text>
-                </View>
-              </View>
-              <FlatList
-                keyExtractor={item => String(item.id)}
-                data={this.state.selectedBudget.transactionsFromAccounts}
-                renderItem={this.renderTransaction}
-              />
-            </Fragment>
-          ) : (
-            <View>
-              <Text style={styles.text}>No Transactions</Text>
-            </View>
-          )}
-        </Modal>
+
         <Modal
           isVisibile={this.state.isAddModalVisible}
           title="Add Budget"

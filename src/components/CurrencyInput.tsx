@@ -6,7 +6,7 @@ type Props = {
   value: number
   onChange: (number) => void
   onSubmit?: (number) => void
-  onBlur?: (number) => void
+  onBlur?: () => void
   onFocus?: () => void
   style?: TextStyle
   useDefaultStyles?: boolean
@@ -100,11 +100,13 @@ class CurrencyInput extends Component<Props, State> {
         onChangeText={this.handleChangeValue}
         keyboardType="number-pad"
         selection={this.state.selection}
-        onSubmitEditing={() => {
+        onSubmitEditing={async () => {
           if (this.props.onSubmit) {
-            this.props.onSubmit(+this.state.value)
+            await this.props.onSubmit(+this.state.value)
+            Keyboard.dismiss()
+          } else {
+            Keyboard.dismiss()
           }
-          Keyboard.dismiss()
         }}
         onBlur={this.props.onBlur}
         blurOnSubmit={this.props.blurOnSubmit || false}

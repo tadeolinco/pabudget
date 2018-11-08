@@ -61,7 +61,7 @@ class AccountsScreen extends Component<Props, State> {
   }
 
   showTransactions = (account: Account) => {
-    this.props.navigation.navigate('AccountDetails', { account })
+    this.props.navigation.navigate('AccountTransactions', { account })
   }
 
   render() {
@@ -132,6 +132,8 @@ class AccountsScreen extends Component<Props, State> {
                   account={account}
                   totalAmount={amountPerAccount.get(account.id)}
                   showTransactions={this.showTransactions}
+                  deleteAccount={this.props.accountsContext.deleteAccount}
+                  updateAccount={this.props.accountsContext.updateAccount}
                 />
               )}
               rowHasChanged={a => {
@@ -177,6 +179,10 @@ class AccountsScreen extends Component<Props, State> {
           />
         </Modal>
         <Loader active={isFetchingAccounts} text="Getting your accounts..." />
+        <Loader
+          active={this.props.accountsContext.isDeletingAccount}
+          text="Deleting account..."
+        />
       </Fragment>
     )
   }

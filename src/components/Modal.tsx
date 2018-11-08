@@ -24,6 +24,7 @@ const Modal = ({
       onBackdropPress={() => {
         if (dimmerClose) onClose()
       }}
+      onBackButtonPress={onClose}
       isVisible={isVisibile}
       animationIn="fadeIn"
       animationOut="fadeOut"

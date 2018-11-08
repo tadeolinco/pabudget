@@ -7,6 +7,9 @@ import {
   Animated,
   TouchableHighlight,
   Dimensions,
+  Alert,
+  TextInput,
+  Keyboard,
 } from 'react-native'
 import { Account } from '../../../entities'
 import { COLORS, FONT_SIZES, toCurrency } from '../../../utils'
@@ -18,11 +21,15 @@ type Props = {
   account: Account
   totalAmount: number
   showTransactions: (account: Account) => void
+  deleteAccount: (targetAccount: Account) => void
+  updateAccount: (newAccount: Account) => void
   sortHandlers?: any
 }
 
 type State = {
   buttonSize: number
+  tempName: string
+  isNameFocused: boolean
 }
 
 const deviceWidth = Dimensions.get('screen').width
@@ -31,18 +38,64 @@ class AccountItem extends Component<Props, State> {
   private _deltaX: Animated.Value
   private snapPoint = 100
   private interactableView: any
+  private nameInput!: TextInput
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props)
 
     this.state = {
       buttonSize: 0,
+      tempName: props.account.name,
+      isNameFocused: false,
     }
     this._deltaX = new Animated.Value(0)
   }
 
   handleShowTransactions = () => {
     this.props.showTransactions(this.props.account)
+  }
+
+  handlePressName = () => {
+    this.nameInput.focus()
+    this.setState({
+      tempName: this.props.account.name,
+      isNameFocused: true,
+    })
+  }
+
+  handleChangeName = tempName => {
+    this.setState({ tempName })
+  }
+
+  handleSubmitAccountName = async () => {
+    const trimmedNamed = this.state.tempName.trim()
+    if (trimmedNamed) {
+      await this.props.updateAccount({
+        ...this.props.account,
+        name: trimmedNamed,
+      })
+    }
+    this.setState({ isNameFocused: false, tempName: this.props.account.name })
+  }
+
+  handleDeleteAccount = () => {
+    Alert.alert(
+      `Deleting ${this.props.account.name}`,
+      'Are you sure you want delete?',
+      [
+        {
+          text: 'No',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: async () => {
+            await this.props.deleteAccount(this.props.account)
+          },
+        },
+      ]
+    )
   }
 
   renderSlider = () => {
@@ -77,7 +130,7 @@ class AccountItem extends Component<Props, State> {
               justifyContent: 'center',
               alignItems: 'center',
             }}
-            onPress={this.handleShowTransactions}
+            onPress={this.handleDeleteAccount}
           >
             <Icon
               name="trash-alt"
@@ -168,9 +221,26 @@ class AccountItem extends Component<Props, State> {
             <TouchableOpacity
               activeOpacity={0.6}
               style={styles.nameContainer}
-              onPress={() => {}}
+              onPress={this.handlePressName}
             >
-              <Text style={styles.text}>{this.props.account.name}</Text>
+              <TextInput
+                editable={this.state.isNameFocused}
+                ref={ref => (this.nameInput = ref)}
+                style={styles.text}
+                value={this.state.tempName}
+                onChangeText={this.handleChangeName}
+                onSubmitEditing={this.handleSubmitAccountName}
+                blurOnSubmit={false}
+                onFocus={() =>
+                  this.setState({ tempName: this.props.account.name })
+                }
+                onBlur={() =>
+                  this.setState({
+                    isNameFocused: false,
+                    tempName: this.props.account.name,
+                  })
+                }
+              />
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.6}
@@ -189,8 +259,8 @@ class AccountItem extends Component<Props, State> {
                       this.props.totalAmount === 0
                         ? COLORS.DARK_GRAY
                         : this.props.totalAmount > 0
-                          ? COLORS.GREEN
-                          : COLORS.RED,
+                        ? COLORS.GREEN
+                        : COLORS.RED,
                     borderRadius: 20,
                     paddingHorizontal: 8,
                     paddingVertical: 2,
@@ -214,7 +284,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: COLORS.GRAY,
     height: 50,
-    padding: 10,
+    paddingHorizontal: 10,
   },
   nameContainer: {
     flex: 1,
@@ -224,6 +294,7 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.TINY,
     fontWeight: 'normal',
+    padding: 0,
   },
 })
 

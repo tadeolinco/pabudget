@@ -1,6 +1,6 @@
 import React from 'react'
 import { Account, AccountTransaction } from '../entities'
-import { getRepository } from 'typeorm/browser'
+import { getRepository, Repository } from 'typeorm/browser'
 import { isSame } from '../utils'
 
 type Props = {}
@@ -8,6 +8,8 @@ type Props = {}
 type State = {
   isAddingAccount: boolean
   isFetchingAccounts: boolean
+  isDeletingAccount: boolean
+  isUpdatingAccount: boolean
   accounts: Account[]
   netWorth: number
   totalAssets: number
@@ -18,6 +20,8 @@ type State = {
 export interface AccountsContext extends State {
   addAccount: (name: string, initialAmount: number) => void
   fetchAccounts: () => void
+  deleteAccount: (targetAccount: Account) => void
+  updateAccount: (newAccount: Account) => void
   arrangeAccounts: (e: { to: number; from: number }) => void
 }
 
@@ -26,12 +30,20 @@ const { Consumer, Provider } = React.createContext<AccountsContext>(null)
 export class AccountsProvider extends React.Component<Props, State> {
   state: State = {
     isAddingAccount: false,
-    isFetchingAccounts: false,
+    isFetchingAccounts: true,
+    isDeletingAccount: false,
+    isUpdatingAccount: false,
     accounts: [],
     netWorth: 0,
     totalAssets: 0,
     totalLiabilities: 0,
     amountPerAccount: new Map(),
+  }
+
+  accountRepository: Repository<Account> = getRepository(Account)
+
+  constructor(props) {
+    super(props)
   }
 
   async componentDidMount() {
@@ -91,7 +103,7 @@ export class AccountsProvider extends React.Component<Props, State> {
     this.setState({ isFetchingAccounts: true })
 
     try {
-      const accounts = await getRepository(Account).find({
+      const accounts = await this.accountRepository.find({
         relations: [
           'transactionsFromAccounts',
           'transactionsFromAccounts.fromAccount',
@@ -116,12 +128,11 @@ export class AccountsProvider extends React.Component<Props, State> {
   addAccount = async (name: string, initialAmount: number) => {
     this.setState({ isAddingAccount: true })
     try {
-      const accountRepository = getRepository(Account)
       const newAccount = new Account()
       newAccount.name = name
       console.log(this.state.accounts.length)
       newAccount.order = this.state.accounts.length
-      await accountRepository.save(newAccount)
+      await this.accountRepository.save(newAccount)
 
       const accountTransactionRepository = getRepository(AccountTransaction)
       const newTransaction = new AccountTransaction()
@@ -136,6 +147,44 @@ export class AccountsProvider extends React.Component<Props, State> {
     }
     this.setState({ isAddingAccount: false })
     await this.fetchAccounts()
+  }
+
+  updateAccount = async (newAccount: Account) => {
+    this.setState({ isUpdatingAccount: true })
+    try {
+      await this.accountRepository.save(newAccount)
+      this.setState({
+        accounts: this.state.accounts.map(account =>
+          account.id === newAccount.id ? newAccount : account
+        ),
+      })
+    } catch (err) {
+      console.warn(err)
+    } finally {
+      this.setState({ isUpdatingAccount: false })
+    }
+  }
+
+  deleteAccount = async (targetAccount: Account) => {
+    this.setState({ isDeletingAccount: true })
+    try {
+      const accounts = this.state.accounts
+        .filter(account => account.id !== targetAccount.id)
+        .map(account => {
+          if (account.order > targetAccount.order) account.order--
+          return account
+        })
+
+      await Promise.all(
+        accounts.map(budget => this.accountRepository.save(budget))
+      )
+      await this.accountRepository.delete(targetAccount)
+      await this.fetchAccounts()
+    } catch (err) {
+      console.warn(err)
+    } finally {
+      this.setState({ isDeletingAccount: false })
+    }
   }
 
   arrangeAccounts = async (e: { to: number; from: number }) => {
@@ -158,8 +207,7 @@ export class AccountsProvider extends React.Component<Props, State> {
     const accounts = newAccounts.sort((a, b) => a.order - b.order)
 
     this.setState({ accounts })
-    const accountRepository = getRepository(Account)
-    await accountRepository.save(accounts)
+    await this.accountRepository.save(accounts)
   }
 
   render() {
@@ -168,6 +216,8 @@ export class AccountsProvider extends React.Component<Props, State> {
       addAccount: this.addAccount,
       fetchAccounts: this.fetchAccounts,
       arrangeAccounts: this.arrangeAccounts,
+      deleteAccount: this.deleteAccount,
+      updateAccount: this.updateAccount,
     }
 
     return <Provider value={value}>{this.props.children}</Provider>
