@@ -83,10 +83,17 @@ class TransactionScreen extends Component<Props, State> {
     }
 
     const toBudget = this.props.navigation.getParam('toBudget')
+    const toAccount = this.props.navigation.getParam('toAccount')
     this.setState({
       toOptions: [...toOptions, ...fromOptions],
       fromOptions: [...fromOptions, { value: null, label: 'None' }],
-      to: toBudget ? toBudget : toOptions[0] ? toOptions[0].value : null,
+      to: toBudget
+        ? toBudget
+        : toAccount
+        ? toAccount
+        : toOptions[0]
+        ? toOptions[0].value
+        : null,
       from: fromOptions[0] ? fromOptions[0].value : null,
     })
   }

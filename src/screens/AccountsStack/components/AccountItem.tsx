@@ -16,6 +16,7 @@ import { COLORS, FONT_SIZES, toCurrency } from '../../../utils'
 import Interactable from 'react-native-interactable'
 import Color from 'color'
 import Icon from 'react-native-vector-icons/FontAwesome5'
+import { withNavigation, NavigationScreenProp } from 'react-navigation'
 
 type Props = {
   account: Account
@@ -24,6 +25,7 @@ type Props = {
   deleteAccount: (targetAccount: Account) => void
   updateAccount: (newAccount: Account) => void
   sortHandlers?: any
+  navigation?: NavigationScreenProp<any>
 }
 
 type State = {
@@ -96,6 +98,12 @@ class AccountItem extends Component<Props, State> {
         },
       ]
     )
+  }
+
+  handleAddAccountTransaction = () => {
+    this.props.navigation.navigate('Transaction', {
+      toAccount: this.props.account,
+    })
   }
 
   renderSlider = () => {
@@ -249,6 +257,7 @@ class AccountItem extends Component<Props, State> {
                 justifyContent: 'center',
                 alignItems: 'flex-end',
               }}
+              onPress={this.handleAddAccountTransaction}
             >
               <Text
                 style={[
@@ -298,4 +307,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default AccountItem
+export default withNavigation(AccountItem)
