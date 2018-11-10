@@ -121,10 +121,11 @@ export class BudgetProvider extends React.Component<Props, State> {
       const budgetRepository = getRepository(Budget)
       await budgetRepository.save(newBudget)
       this.setState({
-        budgets: this.state.budgets.map(
-          budget => (budget.id === newBudget.id ? newBudget : budget)
+        budgets: this.state.budgets.map(budget =>
+          budget.id === newBudget.id ? newBudget : budget
         ),
       })
+      this.fetchBudgets()
     } catch (err) {
       console.warn(err)
     } finally {

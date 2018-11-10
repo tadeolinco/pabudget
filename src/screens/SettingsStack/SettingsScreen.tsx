@@ -82,15 +82,15 @@ class SettingsScreen extends Component<Props, State> {
           data={this.settings}
           renderItem={this.renderSettingsItem}
         />
-        <View>
+        <View style={{ backgroundColor: 'white' }}>
           <Text
             style={{
               color: COLORS.BLACK,
               fontSize: FONT_SIZES.TINY,
-              textAlign: 'center',
+              textAlign: 'right',
             }}
           >
-            {VersionNumber.appVersion}
+            v{VersionNumber.appVersion}
           </Text>
         </View>
         <MainTabs />

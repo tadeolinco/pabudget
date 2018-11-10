@@ -1,16 +1,35 @@
 import React, { Component, Fragment } from 'react'
-import { StyleSheet, View, Text, FlatList } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+} from 'react-native'
 import { Header } from '../../components'
-import { AccountsContext, withAccounts } from '../../context'
+import {
+  AccountsContext,
+  withAccounts,
+  withBudget,
+  BudgetContext,
+} from '../../context'
 import { NavigationScreenProp } from 'react-navigation'
-import { Account } from '../../entities'
+import {
+  Account,
+  Budget,
+  BudgetTransaction,
+  AccountTransaction,
+} from '../../entities'
 import { FONT_SIZES, COLORS, toCurrency } from '../../utils'
 import { AccountsHeader } from './components'
 import { format, isToday } from 'date-fns'
+import { getRepository } from 'typeorm/browser'
 
 type Props = {
   navigation: NavigationScreenProp<any>
   accountsContext: AccountsContext
+  budgetContext: BudgetContext
 }
 
 type State = {
@@ -18,6 +37,7 @@ type State = {
   transactions: any[]
   totalAssets: number
   totalLiabilities: number
+  isDeletingTransaction: boolean
 }
 
 class AccountTransactionsScreen extends Component<Props, State> {
@@ -26,6 +46,7 @@ class AccountTransactionsScreen extends Component<Props, State> {
     transactions: [],
     totalAssets: 0,
     totalLiabilities: 0,
+    isDeletingTransaction: false,
   }
 
   componentDidMount() {
@@ -57,12 +78,40 @@ class AccountTransactionsScreen extends Component<Props, State> {
     this.setState({ account, transactions, totalAssets, totalLiabilities })
   }
 
+  handleDeleteTransaction = (transaction: any) => {
+    Alert.alert('Are you sure you want to delete this transaction?', '', [
+      {
+        text: 'No',
+        onPress: () => {},
+        style: 'cancel',
+      },
+      {
+        text: 'Yes',
+        onPress: async () => {
+          this.setState({ isDeletingTransaction: true })
+          const isToBudget = !!transaction.toBudget
+          if (isToBudget) {
+            await getRepository(BudgetTransaction).delete(transaction.id)
+          } else {
+            await getRepository(AccountTransaction).delete(transaction.id)
+          }
+          await this.props.budgetContext.fetchBudgets()
+          await this.props.accountsContext.fetchAccounts()
+          this.setState({ isDeletingTransaction: false })
+        },
+      },
+    ])
+  }
+
   renderTransaction = ({ item: transaction }) => {
     const transactionDate = new Date(transaction.createdAt)
     const isTransactionDateToday = isToday(transactionDate)
 
     return (
-      <View style={styles.row}>
+      <TouchableOpacity
+        style={styles.row}
+        onLongPress={() => this.handleDeleteTransaction(transaction)}
+      >
         <View style={[styles.cell, { flex: 2 }]}>
           <Text style={styles.text}>
             {format(
@@ -82,8 +131,8 @@ class AccountTransactionsScreen extends Component<Props, State> {
                     : transaction.toBudget.name
                 }`
               : transaction.fromAccount
-                ? `From ${transaction.fromAccount.name}`
-                : `To ${this.state.account.name}`}
+              ? `From ${transaction.fromAccount.name}`
+              : `To ${this.state.account.name}`}
           </Text>
         </View>
 
@@ -113,7 +162,7 @@ class AccountTransactionsScreen extends Component<Props, State> {
             {toCurrency(transaction.amount)}
           </Text>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
 
@@ -183,4 +232,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default withAccounts(AccountTransactionsScreen)
+export default withBudget(withAccounts(AccountTransactionsScreen))

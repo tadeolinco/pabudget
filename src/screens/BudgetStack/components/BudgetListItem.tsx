@@ -331,7 +331,6 @@ class BudgetListItem extends React.Component<Props, State> {
                   this.setState({ isAmountFocused: false })
                 }}
                 blurOnSubmit={false}
-                allowNegation
               />
             </TouchableOpacity>
             <TouchableOpacity

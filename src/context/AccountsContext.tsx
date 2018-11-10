@@ -158,6 +158,7 @@ export class AccountsProvider extends React.Component<Props, State> {
           account.id === newAccount.id ? newAccount : account
         ),
       })
+      this.fetchAccounts()
     } catch (err) {
       console.warn(err)
     } finally {

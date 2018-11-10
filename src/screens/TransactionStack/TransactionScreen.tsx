@@ -296,7 +296,6 @@ class TransactionScreen extends Component<Props, State> {
                 useDefaultStyles
                 style={{ fontSize: FONT_SIZES.REGULAR, color: COLORS.BLACK }}
                 blurOnSubmit
-                allowNegation
               />
             </View>
           </View>
