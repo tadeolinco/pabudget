@@ -3,9 +3,10 @@ import MainTabs from '../MainTabs'
 import { Header, Button, Loader } from '../../components'
 import { View, StyleSheet, Text, FlatList, Alert } from 'react-native'
 import { COLORS, FONT_SIZES } from '../../utils'
-import { getRepository, getConnection } from 'typeorm/browser'
+import { getConnection } from 'typeorm/browser'
 import { BudgetTransaction } from '../../entities'
 import { withBudget, BudgetContext } from '../../context'
+import VersionNumber from 'react-native-version-number'
 
 type Props = {
   budgetContext: BudgetContext
@@ -81,6 +82,17 @@ class SettingsScreen extends Component<Props, State> {
           data={this.settings}
           renderItem={this.renderSettingsItem}
         />
+        <View>
+          <Text
+            style={{
+              color: COLORS.BLACK,
+              fontSize: FONT_SIZES.TINY,
+              textAlign: 'center',
+            }}
+          >
+            {VersionNumber.appVersion}
+          </Text>
+        </View>
         <MainTabs />
         <Loader
           active={this.state.isResettingBudgets}
@@ -94,6 +106,7 @@ class SettingsScreen extends Component<Props, State> {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
+    flex: 1,
   },
   row: {
     paddingVertical: 10,

@@ -185,6 +185,7 @@ class BudgetScreen extends Component<Props, State> {
             value={this.state.newBudgetAmount}
             onChange={newBudgetAmount => this.setState({ newBudgetAmount })}
             useDefaultStyles
+            allowNegation
           />
           <Button
             full

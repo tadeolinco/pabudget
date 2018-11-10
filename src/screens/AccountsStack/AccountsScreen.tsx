@@ -165,6 +165,7 @@ class AccountsScreen extends Component<Props, State> {
               this.setState({ newAccountInitialAmount })
             }
             useDefaultStyles
+            allowNegation
           />
           <Button
             full
