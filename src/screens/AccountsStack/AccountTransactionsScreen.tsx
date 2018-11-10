@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native'
-import { Header } from '../../components'
+import { Header, Loader } from '../../components'
 import {
   AccountsContext,
   withAccounts,
@@ -97,7 +97,12 @@ class AccountTransactionsScreen extends Component<Props, State> {
           }
           await this.props.budgetContext.fetchBudgets()
           await this.props.accountsContext.fetchAccounts()
-          this.setState({ isDeletingTransaction: false })
+          this.setState({
+            isDeletingTransaction: false,
+            transactions: this.state.transactions.filter(
+              t => t.id !== transaction.id
+            ),
+          })
         },
       },
     ])
@@ -201,6 +206,10 @@ class AccountTransactionsScreen extends Component<Props, State> {
           keyExtractor={(item, index) => String(index)}
           data={this.state.transactions}
           renderItem={this.renderTransaction}
+        />
+        <Loader
+          active={this.state.isDeletingTransaction}
+          text="Deleting transaction..."
         />
       </Fragment>
     )

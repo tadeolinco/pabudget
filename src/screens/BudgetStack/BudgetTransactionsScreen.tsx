@@ -54,7 +54,12 @@ class BudgetTransactionsScreen extends Component<Props, State> {
           await getRepository(BudgetTransaction).delete(transaction.id)
           await this.props.budgetContext.fetchBudgets()
           await this.props.accountsContext.fetchAccounts()
-          this.setState({ isDeletingTransaction: false })
+          this.setState({
+            isDeletingTransaction: false,
+            transactions: this.state.transactions.filter(
+              t => t.id !== transaction.id
+            ),
+          })
         },
       },
     ])
