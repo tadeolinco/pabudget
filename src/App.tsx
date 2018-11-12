@@ -13,7 +13,7 @@ const RootNavigator = createSwitchNavigator(
     TransactionStack: TransactionStack,
     SettingsStack: SettingsStack,
   },
-  { initialRouteName: 'AccountsStack' }
+  { initialRouteName: 'BudgetStack' }
 )
 
 export default () => (
