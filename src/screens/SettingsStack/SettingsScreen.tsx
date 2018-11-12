@@ -74,7 +74,22 @@ class SettingsScreen extends Component<Props, State> {
   render() {
     return (
       <Fragment>
-        <Header title="Settings" />
+        <Header
+          title="Settings"
+          right={
+            <View style={{ paddingRight: 10 }}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: FONT_SIZES.TINY,
+                  textAlign: 'right',
+                }}
+              >
+                v{VersionNumber.appVersion}
+              </Text>
+            </View>
+          }
+        />
         <FlatList
           contentContainerStyle={styles.container}
           style={{ backgroundColor: 'white' }}
@@ -82,17 +97,6 @@ class SettingsScreen extends Component<Props, State> {
           data={this.settings}
           renderItem={this.renderSettingsItem}
         />
-        <View style={{ backgroundColor: 'white' }}>
-          <Text
-            style={{
-              color: COLORS.BLACK,
-              fontSize: FONT_SIZES.TINY,
-              textAlign: 'right',
-            }}
-          >
-            v{VersionNumber.appVersion}
-          </Text>
-        </View>
         <MainTabs />
         <Loader
           active={this.state.isResettingBudgets}
