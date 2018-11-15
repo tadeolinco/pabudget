@@ -1,13 +1,8 @@
 import React, { Fragment, Component } from 'react'
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  FlatList,
-} from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
+import { connect } from 'react-redux'
 import {
   Header,
   Loader,
@@ -16,16 +11,22 @@ import {
   Input,
   CurrencyInput,
 } from '../../components'
-import { BudgetContext, withBudget } from '../../context'
-import { COLORS, FONT_SIZES, toCurrency } from '../../utils'
+import { COLORS, FONT_SIZES } from '../../utils'
 import MainTabs from '../MainTabs'
 import { BudgetHeader, BudgetListItem } from './components'
 import SortableListView from 'react-native-sortable-listview'
-import { Budget, BudgetTransaction } from '../../entities'
+import { Budget } from '../../entities'
 
 type Props = {
-  budgetContext: BudgetContext
   navigation: NavigationScreenProp<any>
+  budgets: Budget[]
+  addBudget: (budget: { name: string; amount: number }) => void
+  updateBudget: (budget: Budget) => void
+  deleteBudget: (budget: Budget) => void
+  arrangeBudgets: (event: { to: number; from: number }) => void
+  isAddingBudget: boolean
+  isDeletingBudget: boolean
+  isFetchingBudgets: boolean
 }
 
 type State = {
@@ -44,10 +45,10 @@ class BudgetScreen extends Component<Props, State> {
   handleAddBudget = async () => {
     this.setState({ isAddModalVisible: false })
     requestAnimationFrame(async () => {
-      await this.props.budgetContext.addBudget(
-        this.state.newBudgetName.trim(),
-        this.state.newBudgetAmount
-      )
+      await this.props.addBudget({
+        name: this.state.newBudgetName.trim(),
+        amount: this.state.newBudgetAmount,
+      })
     })
   }
 
@@ -64,23 +65,10 @@ class BudgetScreen extends Component<Props, State> {
   }
 
   render() {
-    const {
-      budgetContext: {
-        budgets,
-        isFetchingBudgets,
-        totalAvailable,
-        totalBudget,
-        availablePerBudget,
-      },
-    } = this.props
-
-    const sortedBudgets = this.props.budgetContext.budgets.reduce(
-      (acc, curr) => {
-        acc[curr.order] = curr
-        return acc
-      },
-      {}
-    )
+    const sortedBudgets = this.props.budgets.reduce((acc, curr) => {
+      acc[curr.order] = curr
+      return acc
+    }, {})
 
     const order = Object.keys(sortedBudgets)
       .map(key => sortedBudgets[key].order)
@@ -102,8 +90,8 @@ class BudgetScreen extends Component<Props, State> {
             </TouchableOpacity>
           }
         />
-        <BudgetHeader budget={totalBudget} available={totalAvailable} />
-        {budgets.length === 0 ? (
+        {/* <BudgetHeader budget={totalBudget} available={totalAvailable} /> */}
+        {this.props.budgets.length === 0 ? (
           <View style={[styles.container, styles.center]}>
             <Button
               text="ADD BUDGET"
@@ -141,7 +129,7 @@ class BudgetScreen extends Component<Props, State> {
                 </Text>
               </View>
             </View>
-            <SortableListView
+            {/* <SortableListView
               moveOnPressIn
               activeOpacity={0.6}
               style={{ backgroundColor: 'white' }}
@@ -152,17 +140,17 @@ class BudgetScreen extends Component<Props, State> {
                   key={budget.id}
                   budget={budget}
                   available={availablePerBudget.get(budget.id)}
-                  updateBudget={this.props.budgetContext.updateBudget}
-                  deleteBudget={this.props.budgetContext.deleteBudget}
+                  updateBudget={this.props.updateBudget}
+                  deleteBudget={this.props.deleteBudget}
                   showTransactions={this.showTransactions}
                 />
               )}
               rowHasChanged={a => {
                 return true
               }}
-              onRowMoved={this.props.budgetContext.arrangeBudgets}
+              onRowMoved={this.props.arrangeBudgets}
               sortRowStyle={{ backgroundColor: COLORS.GRAY }}
-            />
+            /> */}
           </Fragment>
         )}
         <MainTabs />
@@ -195,13 +183,13 @@ class BudgetScreen extends Component<Props, State> {
             disabled={!this.state.newBudgetName.trim()}
           />
         </Modal>
-        <Loader active={isFetchingBudgets} text="Getting your budget..." />
         <Loader
-          active={this.props.budgetContext.isAddingBudget}
-          text="Creating budget..."
+          active={this.props.isFetchingBudgets}
+          text="Getting your budget..."
         />
+        <Loader active={this.props.isAddingBudget} text="Creating budget..." />
         <Loader
-          active={this.props.budgetContext.isDeletingBudget}
+          active={this.props.isDeletingBudget}
           text="Deleting budget..."
         />
       </Fragment>
@@ -239,4 +227,27 @@ const styles = StyleSheet.create({
   cell: { paddingRight: 5, flex: 2, justifyContent: 'center' },
 })
 
-export default withBudget(BudgetScreen)
+const mapState = state => {
+  const {
+    budgets,
+    isAddingBudget,
+    isDeletingBudget,
+    isFetchingBudgets,
+  } = state.budget
+  return { budgets, isAddingBudget, isDeletingBudget, isFetchingBudgets }
+}
+
+const mapDispatch = dispatch => {
+  const {
+    addBudget,
+    updateBudget,
+    deleteBudget,
+    arrangeBudgets,
+  } = dispatch.budget
+  return { addBudget, updateBudget, deleteBudget, arrangeBudgets }
+}
+
+export default connect(
+  mapState,
+  mapDispatch
+)(BudgetScreen)

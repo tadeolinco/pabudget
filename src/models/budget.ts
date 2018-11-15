@@ -19,7 +19,7 @@ export const budget = {
     fetchBudgetsStart(state) {
       return { ...state, isFetchingBudgets: true }
     },
-    fetchBudgetsSuccess(state, payload) {
+    fetchBudgetsSuccess(state, payload: Budget[]) {
       return { ...state, isFetchingBudgets: false, budgets: payload }
     },
     fetchBudgetsFailure(state) {
@@ -28,7 +28,7 @@ export const budget = {
     addBudgetStart(state) {
       return { ...state, isAddingBudget: true }
     },
-    addBudgetSuccess(state, payload) {
+    addBudgetSuccess(state, payload: Budget) {
       return {
         ...state,
         isAddingBudget: false,
@@ -41,7 +41,7 @@ export const budget = {
     updateBudgetStart(state) {
       return { ...state, isUpdatingBudget: true }
     },
-    updateBudgetSuccess(state, payload) {
+    updateBudgetSuccess(state, payload: Budget) {
       return {
         ...state,
         isUpdatingBudget: false,
@@ -57,7 +57,7 @@ export const budget = {
     deleteBudgetStart(state) {
       return { ...state, isDeletingBudget: true }
     },
-    deleteBudgetSuccess(state, payload) {
+    deleteBudgetSuccess(state, payload: Budget[]) {
       return {
         ...state,
         isDeletingBudget: false,
@@ -93,7 +93,7 @@ export const budget = {
       }
     },
 
-    async addBudget(payload, state) {
+    async addBudget(payload: { name: string; amount: number }, state) {
       const { name, amount } = payload
       dispatch.budget.addBudgetStart()
       try {
@@ -101,17 +101,18 @@ export const budget = {
         const newBudget = new Budget()
         newBudget.name = name
         newBudget.amount = amount
-        newBudget.order = state.budgets.length
+        newBudget.order = state.budget.budgets.length
 
         await budgetRepository.save(newBudget)
 
         dispatch.budget.addBudgetSuccess(newBudget)
       } catch (err) {
+        console.log(err)
         dispatch.budget.addBudgetFailure()
       }
     },
 
-    async updateBudget(payload, state) {
+    async updateBudget(payload: Budget, state) {
       dispatch.budget.updateBudgetStart()
       try {
         const budgetRepository = getRepository(Budget)
@@ -123,12 +124,12 @@ export const budget = {
       }
     },
 
-    async deleteBudget(payload, state) {
+    async deleteBudget(payload: Budget, state) {
       dispatch.budget.deleteBudgetStart()
       try {
         const budgetRepository = getRepository(Budget)
 
-        const budgets = state.budgets
+        const budgets = state.budget.budgets
           .filter(budget => budget.id !== payload.id)
           .map(budget => {
             if (budget.order > payload.order) budget.order--
@@ -144,9 +145,9 @@ export const budget = {
       }
     },
 
-    async arrangeBudgets(payload, state) {
+    async arrangeBudgets(payload: { to: number; from: number }, state) {
       const { to, from } = payload
-      const newBudgets = state.budgets.slice(0)
+      const newBudgets = state.budget.budgets.slice(0)
 
       newBudgets[from].order = to
       if (to < from) {
