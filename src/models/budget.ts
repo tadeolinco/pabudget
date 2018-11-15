@@ -143,5 +143,25 @@ export const budget = {
         dispatch.budget.deleteBudgetFailure()
       }
     },
+
+    async arrangeBudgets(payload, state) {
+      const { to, from } = payload
+      const newBudgets = state.budgets.slice(0)
+
+      newBudgets[from].order = to
+      if (to < from) {
+        for (let index = to; index < from; index++) {
+          newBudgets[index].order++
+        }
+      } else {
+        for (let index = to; index > from; index--) {
+          newBudgets[index].order--
+        }
+      }
+      const budgets = newBudgets.sort((a, b) => a.order - b.order)
+      const budgetRepository = getRepository(Budget)
+      await budgetRepository.save(budgets)
+      dispatch.budget.fetchBudgets()
+    },
   }),
 }
