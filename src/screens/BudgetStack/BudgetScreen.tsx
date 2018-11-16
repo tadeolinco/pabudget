@@ -16,6 +16,7 @@ import MainTabs from '../MainTabs'
 import { BudgetHeader, BudgetListItem } from './components'
 import SortableListView from 'react-native-sortable-listview'
 import { Budget } from '../../entities'
+import store from '../../store'
 
 type Props = {
   navigation: NavigationScreenProp<any>
@@ -27,6 +28,9 @@ type Props = {
   isAddingBudget: boolean
   isDeletingBudget: boolean
   isFetchingBudgets: boolean
+  totalBudget: number
+  totalAvailable: number
+  availablePerBudget: Map<number, number>
 }
 
 type State = {
@@ -90,7 +94,10 @@ class BudgetScreen extends Component<Props, State> {
             </TouchableOpacity>
           }
         />
-        {/* <BudgetHeader budget={totalBudget} available={totalAvailable} /> */}
+        <BudgetHeader
+          budget={this.props.totalBudget}
+          available={this.props.totalAvailable}
+        />
         {this.props.budgets.length === 0 ? (
           <View style={[styles.container, styles.center]}>
             <Button
@@ -129,7 +136,7 @@ class BudgetScreen extends Component<Props, State> {
                 </Text>
               </View>
             </View>
-            {/* <SortableListView
+            <SortableListView
               moveOnPressIn
               activeOpacity={0.6}
               style={{ backgroundColor: 'white' }}
@@ -139,7 +146,7 @@ class BudgetScreen extends Component<Props, State> {
                 <BudgetListItem
                   key={budget.id}
                   budget={budget}
-                  available={availablePerBudget.get(budget.id)}
+                  available={this.props.availablePerBudget.get(budget.id)}
                   updateBudget={this.props.updateBudget}
                   deleteBudget={this.props.deleteBudget}
                   showTransactions={this.showTransactions}
@@ -150,7 +157,7 @@ class BudgetScreen extends Component<Props, State> {
               }}
               onRowMoved={this.props.arrangeBudgets}
               sortRowStyle={{ backgroundColor: COLORS.GRAY }}
-            /> */}
+            />
           </Fragment>
         )}
         <MainTabs />
@@ -234,7 +241,20 @@ const mapState = state => {
     isDeletingBudget,
     isFetchingBudgets,
   } = state.budget
-  return { budgets, isAddingBudget, isDeletingBudget, isFetchingBudgets }
+  const {
+    totalBudget,
+    totalAvailable,
+    availablePerBudget,
+  } = store.select.budget.computeTotals(state)
+  return {
+    budgets,
+    isAddingBudget,
+    isDeletingBudget,
+    isFetchingBudgets,
+    totalAvailable,
+    totalBudget,
+    availablePerBudget,
+  }
 }
 
 const mapDispatch = dispatch => {

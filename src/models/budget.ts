@@ -13,7 +13,32 @@ export const budget = {
     availablePerBudget: new Map(),
   },
 
-  selectors: {},
+  selectors: slice => ({
+    computeTotals() {
+      return slice(state => {
+        let totalBudget = 0
+        let totalUsed = 0
+        const availablePerBudget = new Map()
+        for (const budget of state.budgets) {
+          totalBudget += budget.amount
+          availablePerBudget.set(budget.id, budget.amount)
+          for (const transaction of budget.transactionsFromAccounts) {
+            availablePerBudget.set(
+              budget.id,
+              availablePerBudget.get(budget.id) - transaction.amount
+            )
+            totalUsed += transaction.amount
+          }
+        }
+        const totalAvailable = totalBudget - totalUsed
+        return {
+          totalBudget,
+          totalAvailable,
+          availablePerBudget,
+        }
+      })
+    },
+  }),
 
   reducers: {
     fetchBudgetsStart(state) {
@@ -28,11 +53,11 @@ export const budget = {
     addBudgetStart(state) {
       return { ...state, isAddingBudget: true }
     },
-    addBudgetSuccess(state, payload: Budget) {
+    addBudgetSuccess(state) {
       return {
         ...state,
         isAddingBudget: false,
-        budgets: [...state.budgets, payload],
+        budgets: [...state.budgets],
       }
     },
     addBudgetFailure(state) {
@@ -105,7 +130,8 @@ export const budget = {
 
         await budgetRepository.save(newBudget)
 
-        dispatch.budget.addBudgetSuccess(newBudget)
+        dispatch.budget.fetchBudgets()
+        dispatch.budget.addBudgetSuccess()
       } catch (err) {
         console.log(err)
         dispatch.budget.addBudgetFailure()
