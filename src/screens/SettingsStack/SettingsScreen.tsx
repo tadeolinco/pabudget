@@ -5,11 +5,11 @@ import { View, StyleSheet, Text, FlatList, Alert } from 'react-native'
 import { COLORS, FONT_SIZES } from '../../utils'
 import { getConnection } from 'typeorm/browser'
 import { BudgetTransaction } from '../../entities'
-import { withBudget, BudgetContext } from '../../context'
 import VersionNumber from 'react-native-version-number'
+import { connect } from 'react-redux'
 
 type Props = {
-  budgetContext: BudgetContext
+  fetchBudgets: () => void
 }
 type State = {
   isResettingBudgets: boolean
@@ -35,7 +35,7 @@ class SettingsScreen extends Component<Props, State> {
             .where({ active: true })
             .execute()
 
-          await this.props.budgetContext.fetchBudgets()
+          await this.props.fetchBudgets()
 
           this.setState({ isResettingBudgets: false })
         },
@@ -130,4 +130,13 @@ const styles = StyleSheet.create({
   },
 })
 
-export default withBudget(SettingsScreen)
+const mapState = state => ({})
+
+const mapDispatch = dispatch => ({
+  fetchBudgets: dispatch.budget.fetchBudgets,
+})
+
+export default connect(
+  mapState,
+  mapDispatch
+)(SettingsScreen)

@@ -8,23 +8,20 @@ import {
   Alert,
 } from 'react-native'
 import { Header, Loader } from '../../components'
-import {
-  withBudget,
-  BudgetContext,
-  withAccounts,
-  AccountsContext,
-} from '../../context'
 import { NavigationScreenProp } from 'react-navigation'
 import { Account, Budget, BudgetTransaction } from '../../entities'
 import { FONT_SIZES, COLORS, toCurrency } from '../../utils'
 import { format, isToday } from 'date-fns'
 import { BudgetHeader } from './components'
 import { getRepository } from 'typeorm/browser'
+import { connect } from 'react-redux'
+import store from '../../store'
 
 type Props = {
   navigation: NavigationScreenProp<any>
-  budgetContext: BudgetContext
-  accountsContext: AccountsContext
+  availablePerBudget: Map<number, number>
+  fetchAccounts: () => void
+  fetchBudgets: () => void
 }
 
 type State = {
@@ -52,8 +49,8 @@ class BudgetTransactionsScreen extends Component<Props, State> {
         onPress: async () => {
           this.setState({ isDeletingTransaction: true })
           await getRepository(BudgetTransaction).delete(transaction.id)
-          await this.props.budgetContext.fetchBudgets()
-          await this.props.accountsContext.fetchAccounts()
+          await this.props.fetchBudgets()
+          await this.props.fetchAccounts()
           this.setState({
             isDeletingTransaction: false,
             transactions: this.state.transactions.filter(
@@ -135,9 +132,7 @@ class BudgetTransactionsScreen extends Component<Props, State> {
         <BudgetHeader
           total
           budget={this.state.budget.amount}
-          available={this.props.budgetContext.availablePerBudget.get(
-            this.state.budget.id
-          )}
+          available={this.props.availablePerBudget.get(this.state.budget.id)}
         />
         {this.state.transactions.length ? (
           <Fragment>
@@ -211,4 +206,19 @@ const styles = StyleSheet.create({
   },
 })
 
-export default withAccounts(withBudget(BudgetTransactionsScreen))
+const mapState = state => {
+  const { availablePerBudget } = store.select.budget.computeTotals(state)
+  return { availablePerBudget }
+}
+
+const mapDispatch = dispatch => {
+  return {
+    fetchAccounts: dispatch.account.fetchAccounts,
+    fetchBudgets: dispatch.budget.fetchBudgets,
+  }
+}
+
+export default connect(
+  mapState,
+  mapDispatch
+)(BudgetTransactionsScreen)

@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react'
 import { StyleSheet, View, Text } from 'react-native'
-import MainTabs from '../MainTabs'
+import MainTabs from './MainTabs'
 import {
   Header,
   Picker,
@@ -8,28 +8,25 @@ import {
   CurrencyInput,
   Input,
   Button,
-} from '../../components'
-import {
-  withAccounts,
-  AccountsContext,
-  withBudget,
-  BudgetContext,
-} from '../../context'
+} from '../components'
 import {
   Account,
   Budget,
   AccountTransaction,
   BudgetTransaction,
-} from '../../entities'
-import { COLORS, FONT_SIZES, isSame, toCurrency } from '../../utils'
+} from '../entities'
+import { COLORS, FONT_SIZES, isSame, toCurrency } from '../utils'
 import { getRepository } from 'typeorm/browser'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { NavigationScreenProp } from 'react-navigation'
+import { connect } from 'react-redux'
 
 type Props = {
   navigation: NavigationScreenProp<any>
-  accountsContext: AccountsContext
-  budgetContext: BudgetContext
+  accounts: Account[]
+  budgets: Budget[]
+  fetchAccounts: () => void
+  fetchBudgets: () => void
 }
 
 type State = {
@@ -65,7 +62,7 @@ class TransactionScreen extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const fromOptions = this.props.accountsContext.accounts.map(account => ({
+    const fromOptions = this.props.accounts.map(account => ({
       value: account,
       label: `${account.name}`,
     }))
@@ -75,7 +72,7 @@ class TransactionScreen extends Component<Props, State> {
       label: string
     }[] = []
 
-    for (const budget of this.props.budgetContext.budgets) {
+    for (const budget of this.props.budgets) {
       toOptions.push({
         value: budget,
         label: `${budget.name}`,
@@ -99,16 +96,11 @@ class TransactionScreen extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    if (
-      prevProps.accountsContext.accounts.length !==
-      this.props.accountsContext.accounts.length
-    ) {
+    if (prevProps.accounts.length !== this.props.accounts.length) {
       this.componentDidMount()
     }
 
-    if (
-      !isSame(prevProps.budgetContext.budgets, this.props.budgetContext.budgets)
-    ) {
+    if (!isSame(prevProps.budgets, this.props.budgets)) {
       this.componentDidMount()
     }
   }
@@ -136,10 +128,7 @@ class TransactionScreen extends Component<Props, State> {
         newTransaction.toBudget = this.state.to
         await budgetTransactionRepository.save(newTransaction)
       }
-      await Promise.all([
-        this.props.budgetContext.fetchBudgets(),
-        this.props.accountsContext.fetchAccounts(),
-      ])
+      await Promise.all([this.props.fetchBudgets(), this.props.fetchAccounts()])
     } catch (err) {
       console.warn(err)
     }
@@ -338,4 +327,21 @@ const styles = StyleSheet.create({
   cell: { flex: 1 },
 })
 
-export default withBudget(withAccounts(TransactionScreen))
+const mapState = state => {
+  return {
+    budgets: state.budget.budgets,
+    accounts: state.account.accounts,
+  }
+}
+
+const mapDispatch = dispatch => {
+  return {
+    fetchAccounts: dispatch.account.fetchAccounts,
+    fetchBudgets: dispatch.budget.fetchBudgets,
+  }
+}
+
+export default connect(
+  mapState,
+  mapDispatch
+)(TransactionScreen)

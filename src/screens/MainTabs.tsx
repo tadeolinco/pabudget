@@ -21,7 +21,7 @@ const MainTabs = ({ navigation }: Props) => {
     {
       text: 'Accounts',
       icon: 'credit-card',
-      onPress: () => navigation.navigate('Accounts'),
+      onPress: () => navigation.navigate('Account'),
     },
     {
       text: 'Settings',

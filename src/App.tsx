@@ -1,20 +1,28 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { createSwitchNavigator } from 'react-navigation'
+import { createStackNavigator } from 'react-navigation'
 import AccountsStack from './screens/AccountsStack'
 import BudgetStack from './screens/BudgetStack'
-import TransactionStack from './screens/TransactionStack'
 import SettingsStack from './screens/SettingsStack'
 import { Loader } from './components'
+import BudgetScreen from './screens/BudgetStack/BudgetScreen'
+import BudgetTransactionsScreen from './screens/BudgetStack/BudgetTransactionsScreen'
+import AccountsScreen from './screens/AccountsStack/AccountsScreen'
+import AccountTransactionsScreen from './screens/AccountsStack/AccountTransactionsScreen'
+import SettingsScreen from './screens/SettingsStack/SettingsScreen'
+import TransactionScreen from './screens/TransactionScreen'
+import { transitionConfig } from './utils'
 
-const RootNavigator = createSwitchNavigator(
+const RootNavigator = createStackNavigator(
   {
-    BudgetStack: BudgetStack,
-    AccountsStack: AccountsStack,
-    TransactionStack: TransactionStack,
-    SettingsStack: SettingsStack,
+    Budget: BudgetScreen,
+    BudgetTransactions: BudgetTransactionsScreen,
+    Account: AccountsScreen,
+    AccountTransactions: AccountTransactionsScreen,
+    Settings: SettingsScreen,
+    Transaction: TransactionScreen,
   },
-  { initialRouteName: 'BudgetStack' }
+  { headerMode: 'none', transitionConfig, initialRouteName: 'Budget' }
 )
 
 type Props = {
@@ -27,10 +35,7 @@ type Props = {
 class App extends Component<Props, {}> {
   async componentDidMount() {
     await this.props.loadDB()
-    await Promise.all([
-      this.props.fetchBudgets(),
-      //  this.props.fetchAccounts
-    ])
+    await Promise.all([this.props.fetchBudgets(), this.props.fetchAccounts()])
   }
 
   render() {
@@ -47,7 +52,7 @@ const mapDispatch = dispatch => {
   return {
     loadDB: dispatch.db.loadDB,
     fetchBudgets: dispatch.budget.fetchBudgets,
-    // fetchAccounts: dispatch.account.fetchAccounts,
+    fetchAccounts: dispatch.account.fetchAccounts,
   }
 }
 

@@ -18,15 +18,26 @@ import {
 } from '../../components'
 import MainTabs from '../MainTabs'
 import { AccountsHeader, AccountItem } from './components'
-import { withAccounts, AccountsContext } from '../../context'
 import { FONT_SIZES, COLORS } from '../../utils'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { Account } from '../../entities'
 import SortableListView from 'react-native-sortable-listview'
+import store from '../../store'
+import { connect } from 'react-redux'
 
 type Props = {
   navigation: NavigationScreenProp<any>
-  accountsContext: AccountsContext
+  isFetchingAccounts: boolean
+  isDeletingAccount: boolean
+  accounts: Account[]
+  netWorth: number
+  totalAssets: number
+  totalLiabilities: number
+  amountPerAccount: Map<number, number>
+  addAccount: (account: { name: string; initialAmount: number }) => void
+  deleteAccount: (account: Account) => void
+  updateAccount: (account: Account) => void
+  arrangeAccounts: (e: { to: number; from: number }) => void
 }
 
 type State = {
@@ -54,10 +65,10 @@ class AccountsScreen extends Component<Props, State> {
 
   handleAddAccount = async () => {
     this.setState({ isAddModalVisible: false })
-    this.props.accountsContext.addAccount(
-      this.state.newAccountName,
-      this.state.newAccountInitialAmount
-    )
+    this.props.addAccount({
+      name: this.state.newAccountName,
+      initialAmount: this.state.newAccountInitialAmount,
+    })
   }
 
   showTransactions = (account: Account) => {
@@ -65,16 +76,10 @@ class AccountsScreen extends Component<Props, State> {
   }
 
   render() {
-    const { accountsContext } = this.props
-    const { isFetchingAccounts, accounts, amountPerAccount } = accountsContext
-
-    const sortedAccounts = this.props.accountsContext.accounts.reduce(
-      (acc, curr) => {
-        acc[curr.order] = curr
-        return acc
-      },
-      {}
-    )
+    const sortedAccounts = this.props.accounts.reduce((acc, curr) => {
+      acc[curr.order] = curr
+      return acc
+    }, {})
 
     const order = Object.keys(sortedAccounts)
       .map(key => sortedAccounts[key].order)
@@ -95,11 +100,11 @@ class AccountsScreen extends Component<Props, State> {
           }
         />
         <AccountsHeader
-          netWorth={this.props.accountsContext.netWorth}
-          totalAssets={this.props.accountsContext.totalAssets}
-          totalLiabilities={this.props.accountsContext.totalLiabilities}
+          netWorth={this.props.netWorth}
+          totalAssets={this.props.totalAssets}
+          totalLiabilities={this.props.totalLiabilities}
         />
-        {accounts.length === 0 ? (
+        {this.props.accounts.length === 0 ? (
           <View style={[styles.container, styles.center]}>
             <Button
               text="ADD ACCOUNT"
@@ -130,16 +135,16 @@ class AccountsScreen extends Component<Props, State> {
                 <AccountItem
                   key={account.id}
                   account={account}
-                  totalAmount={amountPerAccount.get(account.id)}
+                  totalAmount={this.props.amountPerAccount.get(account.id)}
                   showTransactions={this.showTransactions}
-                  deleteAccount={this.props.accountsContext.deleteAccount}
-                  updateAccount={this.props.accountsContext.updateAccount}
+                  deleteAccount={this.props.deleteAccount}
+                  updateAccount={this.props.updateAccount}
                 />
               )}
               rowHasChanged={a => {
                 return true
               }}
-              onRowMoved={this.props.accountsContext.arrangeAccounts}
+              onRowMoved={this.props.arrangeAccounts}
               sortRowStyle={{ backgroundColor: COLORS.GRAY }}
             />
           </Fragment>
@@ -179,9 +184,12 @@ class AccountsScreen extends Component<Props, State> {
             }
           />
         </Modal>
-        <Loader active={isFetchingAccounts} text="Getting your accounts..." />
         <Loader
-          active={this.props.accountsContext.isDeletingAccount}
+          active={this.props.isFetchingAccounts}
+          text="Getting your accounts..."
+        />
+        <Loader
+          active={this.props.isDeletingAccount}
           text="Deleting account..."
         />
       </Fragment>
@@ -226,4 +234,36 @@ const styles = StyleSheet.create({
   },
 })
 
-export default withAccounts(AccountsScreen)
+const mapState = state => {
+  const { isFetchingAccounts, isDeletingAccount, accounts } = state.account
+  const {
+    netWorth,
+    totalAssets,
+    totalLiabilities,
+    amountPerAccount,
+  } = store.select.account.computeTotals(state)
+  return {
+    isFetchingAccounts,
+    isDeletingAccount,
+    accounts,
+    netWorth,
+    totalAssets,
+    totalLiabilities,
+    amountPerAccount,
+  }
+}
+
+const mapDispatch = dispatch => {
+  const {
+    addAccount,
+    updateAccount,
+    deleteAccount,
+    arrangeAccounts,
+  } = dispatch.account
+  return { addAccount, updateAccount, deleteAccount, arrangeAccounts }
+}
+
+export default connect(
+  mapState,
+  mapDispatch
+)(AccountsScreen)
