@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { createStackNavigator } from 'react-navigation'
-import AccountsStack from './screens/AccountsStack'
-import BudgetStack from './screens/BudgetStack'
-import SettingsStack from './screens/SettingsStack'
+import { createStackNavigator, createAppContainer } from 'react-navigation'
 import { Loader } from './components'
 import BudgetScreen from './screens/BudgetStack/BudgetScreen'
 import BudgetTransactionsScreen from './screens/BudgetStack/BudgetTransactionsScreen'
@@ -13,16 +10,18 @@ import SettingsScreen from './screens/SettingsStack/SettingsScreen'
 import TransactionScreen from './screens/TransactionScreen'
 import { transitionConfig } from './utils'
 
-const RootNavigator = createStackNavigator(
-  {
-    Budget: BudgetScreen,
-    BudgetTransactions: BudgetTransactionsScreen,
-    Account: AccountsScreen,
-    AccountTransactions: AccountTransactionsScreen,
-    Settings: SettingsScreen,
-    Transaction: TransactionScreen,
-  },
-  { headerMode: 'none', transitionConfig, initialRouteName: 'Budget' }
+const RootNavigator = createAppContainer(
+  createStackNavigator(
+    {
+      Budget: BudgetScreen,
+      BudgetTransactions: BudgetTransactionsScreen,
+      Account: AccountsScreen,
+      AccountTransactions: AccountTransactionsScreen,
+      Settings: SettingsScreen,
+      Transaction: TransactionScreen,
+    },
+    { headerMode: 'none', transitionConfig, initialRouteName: 'Budget' }
+  )
 )
 
 type Props = {

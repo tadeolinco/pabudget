@@ -70,7 +70,7 @@ class Loader extends React.Component<Props, State> {
           },
         ]}
       >
-        <ActivityIndicator color="white" size={100} />
+        <ActivityIndicator color="white" size="large" />
         {!!this.props.text && (
           <Text style={styles.text}>{this.props.text}</Text>
         )}
