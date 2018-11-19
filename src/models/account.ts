@@ -8,10 +8,6 @@ const state = {
   isDeletingAccount: false,
   isUpdatingAccount: false,
   accounts: [],
-  netWorth: 0,
-  totalAssets: 0,
-  totalLiabilities: 0,
-  amountPerAccount: new Map(),
 }
 
 const selectors = slice => ({
